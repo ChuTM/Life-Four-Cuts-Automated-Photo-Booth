@@ -40,7 +40,7 @@ Requirements (one-time):
    npm install socket.io-client axios
 
 Then just run:
-   node printerpc.js
+   node printer/index.js
 
 First run will ask for your WebSocket server URL (example):
    http://192.168.1.100:3000

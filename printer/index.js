@@ -12,7 +12,7 @@ const readline = require("readline");
 const DEFAULT_URL = "http://192.168.1.115:7721";
 
 // 2. SET FALSE TO PRINT FOR REAL
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 const deviceName = "PrinterPC";
 const tempDir = path.join(os.tmpdir(), "printerpc-mac");
