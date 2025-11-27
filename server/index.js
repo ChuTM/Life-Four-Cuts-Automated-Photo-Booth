@@ -415,16 +415,16 @@ io.on("connection", (socket) => {
 			addToRecord("frame", frameID);
 		}
 
-		if (data.msg.startsWith(":filter-")) {
+		else if (data.msg.startsWith(":filter-")) {
 			const filter = data.msg.replace(":filter-", "");
 			addToRecord("filter", filter);
 		}
 
-		if (data.msg.startsWith(":animation-started-")) {
+		else if (data.msg.startsWith(":animation-started-")) {
 			addToRecord("image-count", ++n);
 		}
 
-		if (data.msg === ":start") {
+		else if (data.msg === ":start") {
 			id = generateId();
 			n = 0;
 			currentUploadLinks = [];
@@ -439,19 +439,19 @@ io.on("connection", (socket) => {
 			addToRecord("participated", Date.now());
 		}
 
-		if (data.msg.startsWith(":purchase-confirmed")) {
+		else if (data.msg.startsWith(":purchase-confirmed")) {
 			addToRecord("purchase", true);
 		}
 
-		if (data.msg.startsWith(":print")) {
+		else if (data.msg.startsWith(":print")) {
 			addToRecord("print", true);
 		}
 
-		if (data.msg.startsWith(":navigator")) {
+		else if (data.msg.startsWith(":navigator")) {
 			addToRecord("navigator", data.msg.split(':navigator-')[1]);
 		}
 
-		if (data.msg.startsWith(":generate-")) {
+		else if (data.msg.startsWith(":generate-")) {
 			// Extract the JSON array part after ":generate-"
 			const jsonPart = data.msg.slice(10); // ":generate-".length === 10
 
