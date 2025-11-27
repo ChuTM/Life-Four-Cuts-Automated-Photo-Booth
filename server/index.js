@@ -436,7 +436,7 @@ io.on("connection", (socket) => {
 			// tell all clients the session ID
 			io.emit("session-id", id);
 
-			addToRecord("participated", true);
+			addToRecord("participated", Date.now());
 		}
 
 		if (data.msg.startsWith(":purchase-confirmed")) {
@@ -445,6 +445,10 @@ io.on("connection", (socket) => {
 
 		if (data.msg.startsWith(":print")) {
 			addToRecord("print", true);
+		}
+
+		if (data.msg.startsWith(":navigator")) {
+			addToRecord("navigator", data.msg.split(':navigator-')[1]);
 		}
 
 		if (data.msg.startsWith(":generate-")) {

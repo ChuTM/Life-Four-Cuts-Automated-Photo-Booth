@@ -3,13 +3,14 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport" content="viewport-fit=cover, user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <title>Econ Open Day | iPad</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#FFC0CB">
+    <meta name="theme-color" content="#F0FFC0">
 
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="/css/ipad.css" />
@@ -18,10 +19,56 @@
 <body>
 
     <div class="page page-1">
-        <button class="start-button">Start</button>
+
+        <div class="animate">
+            <div class="layer-overlap"></div>
+            <div class="line-overlap"></div>
+            <h1>Welcome! 歡迎！</h1>
+        </div>
+
+        <button class="start-button">Start 開始</button>
+
+        <div class="voice-navigator">
+            <h1>
+                YOUR VOICE NAVIGATOR
+                <span>語音導航</span>
+            </h1>
+
+            <div class="teacher current" data-navigator="lly">
+                <span class="name">Mr Marcus Leung</span>
+                <span class="description">
+                    <b>EXCLUSIVE</b> English Navigator | <b>ENGLISH GENTLEMEN</b>
+                </span>
+                <span class="tag">ENGLISH</span>
+            </div>
+            <div class="teacher down" data-navigator="cml">
+                <span class="name">朱妙蓮老師</span>
+                <span class="description">
+                    視藝、中文老師 | <b>溫柔細緻</b>
+                </span>
+                <span class="tag">中文</span>
+            </div>
+            <div class="teacher down" data-navigator="csl">
+                <span class="name">蔡聖龍副校長</span>
+                <span class="description">
+                    副校長 | <b>開朗大方</b>
+                </span>
+                <span class="tag">中文</span>
+            </div>
+            <div class="teacher down" data-navigator="hht">
+                <span class="name">何翰庭老師</span>
+                <span class="description">
+                    中國歷史 | <b>性格沉穩</b>
+                </span>
+                <span class="tag">中文</span>
+            </div>
+
+            <div class="round-button l"></div>
+            <div class="round-button r"></div>
+        </div>
     </div>
 
-    <div class="page page-2">
+    <div class="page page-2 hide">
         <div class="wrapper">
             <span class="frame" id="demo" data-pictures-required="4">
                 <img src="/assets/img/demo.png">
@@ -29,21 +76,33 @@
             <span class="frame" id="frame1" data-pictures-required="4">
                 <img src="/assets/img/frame1.png">
             </span>
-            <span class="frame" id="3" data-pictures-required="6">
-                <img src="/assets/img/3x2.png">
+            <span class="frame" data-disabled>
+                <img src="/assets/img/teachers.png">
             </span>
-            <span class="frame" id="4" data-pictures-required="4">
-                <img src="/assets/img/4x2.png">
+            <span class="frame" id="mr-lcl" data-pictures-required="4">
+                <img src="/assets/img/Mr LCL.png">
             </span>
-            <span class="frame" id="5" data-pictures-required="6">
-                <img src="/assets/img/3x2.png">
+            <span class="frame" id="mr-lhk" data-pictures-required="6">
+                <img src="/assets/img/Mr LHK.png">
+            </span>
+            <span class="frame" id="ms-lc" data-pictures-required="6">
+                <img src="/assets/img/Ms LC.png">
+            </span>
+            <span class="frame" id="pe-teachers" data-pictures-required="6">
+                <img src="/assets/img/PE Teachers.png">
+            </span>
+            <span class="frame" id="young-teachers" data-pictures-required="6">
+                <img src="/assets/img/Young Teachers.png">
+            </span>
+            <span class="frame" id="principles" data-pictures-required="6">
+                <img src="/assets/img/Principles.png">
             </span>
         </div>
 
         <button class="frame-button">Choose This</button>
     </div>
 
-    <div class="page page-3">
+    <div class="page page-3 hide">
         <div class="fullscreen-effect-image">
             <img src="/assets/img/aucp.jpg" alt="">
         </div>
@@ -68,14 +127,14 @@
         <button class="filter-button">Choose This</button>
     </div>
 
-    <div class="page page-4">
+    <div class="page page-4 hide">
         <span class="picture-count">Your <span class="fraction">1 / 6</span> Picture in</span>
         <h2 class="countdown">20</h2>
         <span class="unit">seconds</span>
         <button class="skip">Skip</button>
     </div>
 
-    <div class="page page-5">
+    <div class="page page-5 hide">
         <div class="preview">
             <canvas></canvas>
         </div>
@@ -103,13 +162,13 @@
         </div>
     </div>
 
-    <div class="page page-6">
+    <div class="page page-6 hide">
         <h2>Please wait while we process your pictures.</h2>
         <span class="current">Compositing Your Beauty...</span>
         <img src="" class="progress-preview">
     </div>
 
-    <div class="page page-7">
+    <div class="page page-7 hide">
         <span class="results">RESULTS</span>
         <span class="line"></span>
         <img src="" class="final-image">

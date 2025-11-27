@@ -7,11 +7,10 @@
 	"icons": [
 	],
 	"start_url": "/ipad.html",
-	"background_color": "#FFC0CB",
+	"background_color": "#F0FFC0",
 	"display_override": ["fullscreen", "minimal-ui"],
 	"display": "standalone",
 	"scope": "/ipad.html",
-	"theme_color": "#FFC0CB",
-	"description": "iPad Client",
-	"screenshots": []
+	"theme_color": "#F0FFC0",
+	"description": "iPad Client"
 }

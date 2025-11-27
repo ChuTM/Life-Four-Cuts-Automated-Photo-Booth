@@ -1,4 +1,4 @@
-let navigator = "csl";
+let navigator = "lly";
 
 const voices = {
 	lly: [
@@ -30,34 +30,49 @@ const voices = {
 		"/assets/audio/voices/csl/4. End.wav",
 		"/assets/audio/voices/csl/5. Dismiss.wav",
 	],
+	hht: [
+		"/assets/audio/voices/hht/1. Welcome.wav",
+		"/assets/audio/voices/hht/2. Filter.wav",
+		"/assets/audio/voices/hht/3. Photos.wav",
+		"/assets/audio/voices/hht/4. Dismiss.wav",
+	],
 };
+
 const vn = {
-	// Keep track of currently playing audio per navigator
+	// Track all currently playing Audio instances (one per navigator)
 	_current: {},
 
-	// Main unified trigger function
+	// === GLOBAL STOP: Stop EVERY playing audio, no matter which navigator ===
+	_stopAll() {
+		Object.keys(this._current).forEach(nav => {
+			if (this._current[nav]) {
+				this._current[nav].pause();
+				this._current[nav].currentTime = 0; // optional reset
+				this._current[nav] = null;
+			}
+		});
+	},
+
+	// Main trigger function
 	trigger(navigatorName, index) {
-		if (navigator != navigatorName) {
-			return Error;
+		// Optional: reject if trying to play a different navigator
+		if (navigator !== navigatorName) {
+			return Promise.reject(new Error("Wrong navigator"));
 		}
+
 		if (!voices[navigatorName]) {
-			return Promise.reject(
-				new Error(`Navigator "${navigatorName}" not found`)
-			);
+			return Promise.reject(new Error(`Navigator "${navigatorName}" not found`));
 		}
+
 		if (index < 1 || index > voices[navigatorName].length) {
-			return Promise.reject(
-				new Error(`Voice ${index} does not exist for ${navigatorName}`)
-			);
+			return Promise.reject(new Error(`Voice ${index} does not exist for ${navigatorName}`));
 		}
+
 		const list = voices[navigatorName];
 		const url = list[index - 1];
 
-		// Stop previous audio for this navigator (prevents overlap)
-		if (this._current[navigatorName]) {
-			this._current[navigatorName].pause();
-			this._current[navigatorName].currentTime = 0;
-		}
+		// STOP ALL PREVIOUSLY PLAYING AUDIO (from any navigator)
+		this._stopAll();
 
 		const audio = new Audio(url);
 		this._current[navigatorName] = audio;
@@ -73,15 +88,28 @@ const vn = {
 				reject(e);
 			});
 
-			audio.play().catch((err) => {
+			audio.play().catch(err => {
 				this._current[navigatorName] = null;
 				reject(err);
 			});
 		});
 	},
 
-	// Optional shortcut when you already know the current navigator
+	// Shortcut for current navigator
 	current(index) {
 		return this.trigger(navigator, index);
 	},
+
+	// Manual global stop (useful for emergencies, screen change, etc.)
+	stopAll() {
+		this._stopAll();
+	},
+
+	// Optional: stop only the current navigator
+	stop() {
+		if (this._current[navigator]) {
+			this._current[navigator].pause();
+			this._current[navigator] = null;
+		}
+	}
 };

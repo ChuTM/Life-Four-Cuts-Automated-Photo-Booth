@@ -27,26 +27,87 @@ const socket = io();
 const deviceName = "iPad";
 let sessionId = null;
 
+const teachers = $(".teacher");
+const btnLeft = $(".round-button.l");
+const btnRight = $(".round-button.r");
+
+let currentIndex = 0;
+
+// Find initial current teacher
+teachers.forEach((el, i) => {
+	if (el.classList.contains("current")) currentIndex = i;
+});
+
+let introing = false;
+let introed = false;
+let toStart = false;
+function tryStart() {
+	if (!toStart) return;
+
+	$(".page-1").classList.add("hide");
+	$(".page-1").style.transform = "translateY(100%)";
+
+	setTimeout(() => {
+		$(".page-2").classList.remove("hide");
+		if (navigator === "lly") vn.trigger(navigator, 2);
+	}, 400);
+}
+
+const update = () => {
+	introing = true;
+	introed = true;
+	teachers.forEach((el, i) => {
+		el.classList.remove("current", "up", "down");
+		if (i === currentIndex) {
+			el.classList.add("current");
+			navigator = el.getAttribute("data-navigator");
+			vn.trigger(navigator, 1).then(() => {
+				introing = false;
+				tryStart();
+			});
+		} else if (i < currentIndex) el.classList.add("up");
+		else el.classList.add("down");
+	});
+};
+
+btnLeft.addEventListener("click", () => {
+	currentIndex = currentIndex > 0 ? currentIndex - 1 : teachers.length - 1;
+	update();
+});
+
+btnRight.addEventListener("click", () => {
+	currentIndex = currentIndex < teachers.length - 1 ? currentIndex + 1 : 0;
+	update();
+});
+
 // Handle start button click - navigate to frame selection
 $(".start-button").addEventListener("click", () => {
 	socket.emit("chat message", { name: deviceName, msg: ":start" });
-	$(".page-1").style.display = "none";
+	toStart = true;
 
-	// Page-1 -> Page-2
+	$(".start-button").disabled = "true";
 
-	if (navigator === "lly")
-		vn.trigger("lly", 1).then(() => {
-			$(".page-2").style.display = "block";
-			vn.trigger("lly", 2);
-		});
-	else if (navigator === "cml")
-		vn.trigger("cml", 1).then(() => {
-			$(".page-2").style.display = "block";
-		});
-	else if (navigator === "csl")
-		vn.trigger("csl", 1).then(() => {
-			$(".page-2").style.display = "block";
-		});
+	$(".page-1").classList.add("animating");
+
+	socket.emit("chat message", {
+		name: deviceName,
+		msg: `:navigator-${navigator}`,
+	});
+
+	socket.emit("chat message", {
+		name: deviceName,
+		msg: `:starts-${Date.now()}`,
+	});
+
+	if (!introing) {
+		if (introed) {
+			tryStart();
+		} else {
+			vn.trigger(navigator, 1).then(() => {
+				tryStart();
+			});
+		}
+	}
 });
 
 $(".leave-button").forEach((e) => {
@@ -59,6 +120,7 @@ $(".leave-button").forEach((e) => {
 $(".frame").forEach((e) => {
 	e.addEventListener("click", () => {
 		// Toggle selection state
+		if (e.getAttribute("data-disabled") != null) return;
 		if (e.classList.contains("selected")) {
 			$(".frame-button").classList.remove("continue");
 			return e.classList.remove("selected");
@@ -109,12 +171,13 @@ $(".frame-button").addEventListener("click", () => {
 
 	// Page-2 -> Page-3
 
-	$(".page-3").style.display = "block";
-	$(".page-2").style.display = "none";
+	$(".page-3").classList.remove("hide");
+	$(".page-2").classList.add("hide");
 
 	vn.trigger("lly", 3);
 	vn.trigger("cml", 2);
 	vn.trigger("csl", 2);
+	vn.trigger("hht", 2);
 });
 
 // ---------- Filter Swipe Functionality ----------
@@ -332,12 +395,13 @@ $(".filter-button").addEventListener("click", () => {
 
 	// Page-3 -> Page-4
 
-	$(".page-4").style.display = "block";
-	$(".page-3").style.display = "none";
+	$(".page-4").classList.remove("hide");
+	$(".page-3").classList.add("hide");
 
 	vn.trigger("lly", 4);
 	vn.trigger("cml", 3);
 	vn.trigger("csl", 3);
+	vn.trigger("hht", 3);
 
 	setTimeout(
 		() => startFilmingProcess(), // Begin capture sequence
@@ -463,9 +527,9 @@ function startFilmingProcess() {
 
 						// Page-4 -> Page-5
 
-						$(".page-5").style.display = "block";
+						$(".page-5").classList.remove("hide");
 						initPage5();
-						$(".page-4").style.display = "none";
+						$(".page-4").classList.add("hide");
 					}
 				}, 5000);
 			}
@@ -702,10 +766,11 @@ socket.on("chat message", (data) => {
 
 		// Page-5 -> Page-6
 
-		$(".page-5").style.display = "none";
-		$(".page-6").style.display = "block";
+		$(".page-5").classList.add("hide");
+		$(".page-6").classList.remove("hide");
 
 		vn.trigger("cml", 4);
+		vn.trigger("hht", 4);
 		try {
 			vn.trigger("csl", 4).then(() => {
 				vn.trigger("csl", 5);
@@ -760,8 +825,8 @@ socket.on("chat message", (data) => {
 			});
 		});
 
-		$(".page-6").style.display = "none";
-		$(".page-7").style.display = "block";
+		$(".page-6").classList.add("hide");
+		$(".page-7").classList.remove("hide");
 
 		// Countdown to page refresh
 		let countdown = 120;
