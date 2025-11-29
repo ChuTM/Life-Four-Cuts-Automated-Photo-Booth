@@ -1,0 +1,715 @@
+/* --- Basic and Global Styles --- */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+	/* Smooth scrolling */
+}
+
+body {
+	font-family: "Inter", sans-serif;
+	background-color: #ffffff;
+	color: #333333;
+	min-height: 100vh;
+	line-height: 1.6;
+	padding-top: 80px;
+	padding: 0;
+	width: 100%;
+	overflow-x: hidden;
+	/* Space for fixed button */
+}
+
+.container {
+	width: 100%;
+	max-width: 1200px;
+	/* Optimized container width */
+	margin: 0 auto;
+	padding: 0 25px;
+	/* Mobile-friendly padding */
+}
+
+/* --- Fixed Booking Button (Replaces Navigation Bar) --- */
+.booking-btn {
+	position: fixed;
+	top: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: #d4af37;
+	color: #ffffff;
+	padding: 12px 30px;
+	border-radius: 50px;
+	/* More rounded button */
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.3s ease;
+	z-index: 1000;
+	box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+	letter-spacing: 1px;
+}
+
+.booking-btn:hover {
+	background-color: #111111;
+	transform: translateX(-50%) translateY(-2px);
+	box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.booking-btn i {
+	margin-right: 8px;
+}
+
+/* --- Hero Section --- */
+.hero {
+	height: calc(100vh - 80px);
+	/* Subtract height of top button */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	position: relative;
+	overflow: hidden;
+}
+
+.hero::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	background-size: cover;
+	background-position: center;
+	filter: brightness(0.55);
+	z-index: -1;
+	animation: subtleZoom 25s infinite alternate;
+}
+
+@keyframes subtleZoom {
+	0% {
+		transform: scale(1);
+	}
+
+	100% {
+		transform: scale(1.05);
+	}
+}
+
+.hero-content {
+	max-width: 700px;
+	padding: 20px;
+}
+
+.hero h1 {
+	font-size: clamp(2.5rem, 8vw, 4.5rem);
+	/* Responsive font size */
+	font-weight: 700;
+	color: #ffffff;
+	letter-spacing: 3px;
+	margin-bottom: 25px;
+	line-height: 1.2;
+}
+
+.hero p {
+	font-size: clamp(1rem, 3vw, 1.25rem);
+	color: #e0e0e0;
+	margin-bottom: 40px;
+	font-weight: 300;
+}
+
+.btn {
+	display: inline-block;
+	background-color: transparent;
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	padding: 15px 35px;
+	font-size: 1rem;
+	font-weight: 500;
+	text-decoration: none;
+	transition: all 0.3s ease;
+	letter-spacing: 2px;
+	position: relative;
+	overflow: hidden;
+}
+
+.btn::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255, 255, 255, 0.1);
+	transition: all 0.5s ease;
+	transform: skewX(-25deg);
+}
+
+.btn:hover::after {
+	left: 100%;
+}
+
+.btn:hover {
+	background-color: #ffffff;
+	color: #111111;
+}
+
+/* --- About Us --- */
+.about {
+	padding: 120px 0;
+}
+
+.about-content {
+	display: flex;
+	flex-direction: column;
+	/* Mobile-first, vertical arrangement */
+	gap: 60px;
+}
+
+@media (min-width: 992px) {
+	.about-content {
+		flex-direction: row;
+		align-items: center;
+		gap: 80px;
+	}
+}
+
+.about-text,
+.about-image {
+	flex: 1;
+}
+
+.about-image img {
+	width: 100%;
+	height: auto;
+	display: block;
+	box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+	border-radius: 2px;
+}
+
+.section-title {
+	font-size: clamp(1.8rem, 5vw, 2.5rem);
+	font-weight: 700;
+	margin-bottom: 30px;
+	color: #111111;
+	letter-spacing: 2px;
+	position: relative;
+	padding-bottom: 15px;
+	text-align: left;
+}
+
+.section-title::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 60px;
+	height: 2px;
+	background-color: #d4af37;
+}
+
+.about-text p {
+	color: #666666;
+	margin-bottom: 25px;
+	font-size: 1.05rem;
+}
+
+/* --- New: Team Introduction --- */
+.team-intro {
+	margin-top: 80px;
+	text-align: center;
+}
+
+.team-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 40px;
+	margin-top: 50px;
+}
+
+.team-member {
+	text-align: center;
+}
+
+.team-member img {
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	object-fit: cover;
+	margin-bottom: 20px;
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.team-member h4 {
+	font-weight: 600;
+	color: #111;
+	margin-bottom: 5px;
+}
+
+.team-member p {
+	color: #777;
+	font-size: 0.9rem;
+}
+
+/* --- Services --- */
+.services {
+	padding: 120px 0;
+	background-color: #f9f9f9;
+}
+
+.services-header {
+	text-align: center;
+	margin-bottom: 70px;
+}
+
+.services-header p {
+	max-width: 700px;
+	margin: 20px auto 0;
+	color: #666666;
+}
+
+.services-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	/* More compact grid */
+	gap: 30px;
+}
+
+.service-card {
+	background-color: #ffffff;
+	padding: 50px 30px;
+	text-align: center;
+	transition: all 0.5s ease;
+	position: relative;
+	overflow: hidden;
+	border-radius: 2px;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+}
+
+/* --- Fixed Service Card Hover Effects --- */
+.service-card:hover {
+	transform: translateY(-10px);
+	box-shadow: 0 20px 30px rgba(0, 0, 0, 0.08);
+}
+
+.service-card:hover .service-icon {
+	background-color: #111111;
+	color: #ffffff;
+	transform: scale(1.1);
+}
+
+.service-card::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 3px;
+	background-color: #d4af37;
+	transition: width 0.3s ease;
+}
+
+.service-card:hover::before {
+	width: 100%;
+}
+
+.service-icon {
+	width: 80px;
+	height: 80px;
+	margin: 0 auto 25px;
+	border-radius: 50%;
+	background-color: #f0f0f0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+}
+
+.service-icon i {
+	font-size: 2rem;
+	color: #111111;
+}
+
+.service-card h3 {
+	font-size: 1.3rem;
+	font-weight: 600;
+	margin-bottom: 15px;
+	letter-spacing: 1px;
+}
+
+.service-card p {
+	color: #777777;
+	font-size: 0.95rem;
+}
+
+/* --- Process --- */
+.process {
+	padding: 120px 0;
+}
+
+.process-header {
+	text-align: center;
+	margin-bottom: 70px;
+}
+
+.process-header p {
+	max-width: 700px;
+	margin: 20px auto 0;
+	color: #666666;
+}
+
+.process-steps {
+	display: flex;
+	flex-direction: column;
+	gap: 50px;
+}
+
+@media (min-width: 768px) {
+	.process-steps {
+		flex-direction: row;
+		justify-content: space-between;
+		position: relative;
+		gap: 0;
+	}
+
+	.process-steps::before {
+		content: "";
+		position: absolute;
+		top: 50px;
+		left: 10%;
+		right: 10%;
+		height: 1px;
+		background-color: #eeeeee;
+		z-index: 1;
+	}
+}
+
+.process-step {
+	flex: 1;
+	text-align: center;
+	position: relative;
+	z-index: 2;
+	padding: 0 20px;
+}
+
+.step-number {
+	width: 100px;
+	height: 100px;
+	background-color: #ffffff;
+	border: 1px solid #eeeeee;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 25px;
+	font-size: 1.8rem;
+	font-weight: 700;
+	color: #111111;
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
+}
+
+.step-number::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #d4af37;
+	transform: translateY(100%);
+	transition: transform 0.5s ease;
+	z-index: -1;
+}
+
+.process-step:hover .step-number {
+	color: #ffffff;
+	border-color: #d4af37;
+}
+
+.process-step:hover .step-number::after {
+	transform: translateY(0);
+}
+
+.process-step h3 {
+	font-size: 1.2rem;
+	font-weight: 600;
+	margin-bottom: 15px;
+}
+
+.process-step p {
+	color: #777777;
+	font-size: 0.9rem;
+}
+
+/* --- Early Bird Registration --- */
+.early-bird {
+	padding: 120px 0;
+	background-color: #111111;
+	color: #ffffff;
+	position: relative;
+	overflow: hidden;
+}
+
+.early-bird::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: url("https://placehold.co/1920x1080/222222/FFFFFF?text=EARLY+BIRD&font=playfair");
+	background-size: cover;
+	background-position: center;
+	opacity: 0.1;
+	z-index: 0;
+}
+
+.early-bird .container {
+	position: relative;
+	z-index: 1;
+}
+
+.early-bird-content {
+	max-width: 700px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.early-bird .section-title {
+	color: #ffffff;
+}
+
+.early-bird p {
+	color: #e0e0e0;
+	margin: 25px 0 35px;
+	font-size: 1.05rem;
+}
+
+.early-bird-form {
+	display: flex;
+	flex-direction: column;
+	/* Mobile-first, vertical arrangement */
+	gap: 15px;
+	max-width: 450px;
+	margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+	.early-bird-form {
+		flex-direction: row;
+		gap: 20px;
+	}
+}
+
+.early-bird-form input {
+	flex: 1;
+	padding: 15px 20px;
+	background-color: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 2px;
+	color: #ffffff;
+	font-size: 1rem;
+	transition: all 0.3s ease;
+}
+
+.early-bird-form input:focus {
+	outline: none;
+	border-color: #d4af37;
+	background-color: rgba(255, 255, 255, 0.15);
+}
+
+.early-bird-form button {
+	background-color: #d4af37;
+	color: #ffffff;
+	border: none;
+	padding: 15px 30px;
+	border-radius: 2px;
+	font-weight: 500;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	letter-spacing: 1px;
+}
+
+.early-bird-form button:hover {
+	background-color: #ffffff;
+	color: #111111;
+	transform: translateY(-2px);
+}
+
+.success-message {
+	margin-top: 20px;
+	color: #d4af37;
+	font-weight: 500;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+/* --- Footer --- */
+.footer {
+	background-color: #111111;
+	color: #ffffff;
+	padding: 80px 0 40px;
+}
+
+.footer-content {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 40px;
+	margin-bottom: 60px;
+}
+
+.footer-col h4 {
+	font-size: 1rem;
+	font-weight: 600;
+	margin-bottom: 25px;
+	letter-spacing: 2px;
+	position: relative;
+	padding-bottom: 12px;
+}
+
+.footer-col h4::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 30px;
+	height: 1px;
+	background-color: #555555;
+}
+
+.footer-col p,
+.footer-col a {
+	color: #aaaaaa;
+	margin-bottom: 12px;
+	font-size: 0.9rem;
+	text-decoration: none;
+	display: block;
+	transition: color 0.3s ease;
+}
+
+.footer-col a:hover {
+	color: #ffffff;
+}
+
+.social-links {
+	display: flex;
+	gap: 15px;
+	margin-top: 20px;
+}
+
+.social-links a {
+	display: inline-block;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background-color: #222222;
+	color: #ffffff;
+	text-align: center;
+	line-height: 36px;
+	transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+	background-color: #d4af37;
+	transform: translateY(-3px);
+}
+
+.copyright {
+	text-align: center;
+	padding-top: 40px;
+	border-top: 1px solid #222222;
+	color: #666666;
+	font-size: 0.8rem;
+	letter-spacing: 1px;
+}
+
+/* --- Animation Keyframes --- */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* --- Scroll Animation Classes --- */
+.animate-on-scroll {
+	opacity: 0;
+	transform: translateY(30px);
+	transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.animate-on-scroll.visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* Different delays for different blocks to create a layered effect */
+.services-grid .service-card:nth-child(2),
+.process-steps .process-step:nth-child(2) {
+	transition-delay: 0.1s;
+}
+
+.services-grid .service-card:nth-child(3),
+.process-steps .process-step:nth-child(3) {
+	transition-delay: 0.2s;
+}
+
+.services-grid .service-card:nth-child(4) {
+	transition-delay: 0.3s;
+}
+
+.scc {
+	width: 50px;
+	margin: 1.5rem;
+}
+
+.nowrap {
+	white-space: nowrap;
+}
+
+/* Enhanced Fixed Booking Button with slide-in & scroll behavior */
+.booking-btn {
+	position: fixed;
+	top: -100px;
+	/* Start hidden above the viewport */
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: #d4af37;
+	color: #ffffff;
+	padding: 12px 30px;
+	border-radius: 50px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+	z-index: 1000;
+	box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+	letter-spacing: 1px;
+}
+
+/* Visible state (slides down) */
+.booking-btn.visible {
+	top: 20px;
+}
+
+/* Hidden when scrolled past hero */
+.booking-btn.hide-on-scroll {
+	top: -100px;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.booking-btn:hover {
+	background-color: #111111;
+	transform: translateX(-50%) translateY(-2px);
+	box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
