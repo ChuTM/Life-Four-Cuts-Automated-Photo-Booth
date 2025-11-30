@@ -377,30 +377,33 @@ function initSwipe() {
 /**
  * Synchronizes selected filter with server
  * Extracts filter properties from CSS and sends
- */
-function syncFilter() {
+ */ function syncFilter() {
 	const selectedFilter = filters[currentFilterIndex];
+	const overlay = selectedFilter.querySelector(".filter-overlay");
 
-	// Get filter style from overlay element
-	const filterStyle = getComputedStyle(
-		selectedFilter.querySelector(".filter-overlay")
-	).backdropFilter;
+	// Get the computed backdrop-filter string
+	// Example string: "sepia(0.5) hue-rotate(90deg) contrast(1.2)"
+	const filterStyle = getComputedStyle(overlay).backdropFilter;
 
 	let filterDetails = {};
 
-	// Parse filter properties from CSS string
-	// Regex to match 'function(value)' e.g., hue-rotate(90deg)
-	const regex = /(\w+)\(([^)]+)\)/g;
-	let match;
-	while ((match = regex.exec(filterStyle)) !== null) {
-		const key = match[1];
-		const value = match[2];
-		filterDetails[key] = value.trim();
+	// Check if filters actually exist
+	if (filterStyle && filterStyle !== "none") {
+		// Regex to capture 'name(value)'
+		// Matches: 'hue-rotate' as group 1, '90deg' as group 2
+		// \w+ matches 'sepia', 'blur'
+		// [\w-]+ matches 'hue-rotate' (handles the hyphen)
+		const regex = /([\w-]+)\(([^)]+)\)/g;
+
+		let match;
+		while ((match = regex.exec(filterStyle)) !== null) {
+			const name = match[1]; // e.g., "hue-rotate"
+			const value = match[2]; // e.g., "90deg" or "0.5"
+			filterDetails[name] = value.trim();
+		}
 	}
 
-	// Send filter configuration to server
-	// Note: socket object is stubbed
-
+	// Send to server
 	socket.emit("chat message", {
 		name: deviceName,
 		msg: `:filter-${JSON.stringify(filterDetails)}`,
@@ -440,7 +443,7 @@ $(".text-offer .skip").addEventListener("click", () => {
 // Update slider overlay transparency based on value
 $("#purchase-confirm").addEventListener("input", (e) => {
 	cancelPulse();
-	$(".purchase-confirm-overlap").style.background = `rgba(0, 132, 0, ${
+	$(".purchase-confirm-overlap").style.background = `rgba(255, 255, 255, ${
 		0.5 + e.target.value / 200
 	})`;
 	$("#purchase-confirm").style.setProperty("--value", `${e.target.value}%`);
@@ -555,6 +558,13 @@ function startFilmingProcess() {
 		// Allow skipping to final 6 seconds
 		$("button.skip").onclick = () => {
 			if (countdown > 6) countdown = 6;
+		};
+
+		$("button.toggle-preview-collapse").onclick = () => {
+			socket.emit("chat message", {
+				name: deviceName,
+				msg: `:toggle-collapse`,
+			});
 		};
 
 		let current = index + 1;
@@ -874,8 +884,6 @@ socket.on("chat message", (data) => {
 			});
 		} catch {}
 
-		$(".page-6 .current").textContent = `Making it available online...`;
-
 		$(".page-6 img").src = link;
 		$(".page-7 .final-image").src = link;
 
@@ -904,14 +912,11 @@ socket.on("chat message", (data) => {
 		// Purchase confirmation slider handler
 		$("#purchase-confirm").addEventListener("change", (e) => {
 			if (e.target.value != 100) {
-				$("#purchase-confirm").style.setProperty(
-					"--value",
-					e.target.value
-				);
 				e.target.value = 0;
+				$("#purchase-confirm").style.setProperty("--value", "0%");
 				$(
 					".purchase-confirm-overlap"
-				).style.background = `rgba(0, 132, 0, 0.5)`;
+				).style.background = `rgba(255, 255, 255, 0.5)`;
 				return;
 			}
 
