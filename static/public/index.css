@@ -66,11 +66,33 @@ body {
 	height: calc(100vh - 80px);
 	/* Subtract height of top button */
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
+	align-items: end;
+	justify-content: start;
+	text-align: left;
+	padding: 5rem;
 	position: relative;
 	overflow: hidden;
+}
+
+.art-text {
+	background-image: url(https://alphabrate.github.io/art/assets/logo/dark.svg);
+	background-size: contain;
+	color: transparent;
+	background-repeat: no-repeat;
+	background-position: center;
+	font-size: clamp(4.5rem, 12vw, 8rem);
+
+	animation: appears 1s ease-in-out forwards;
+}
+
+@keyframes appears {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
 }
 
 .hero::before {
@@ -108,16 +130,16 @@ body {
 	/* Responsive font size */
 	font-weight: 700;
 	color: #ffffff;
-	letter-spacing: 3px;
 	margin-bottom: 25px;
-	line-height: 1.2;
+	line-height: 0.9;
+	font-family: 'Times New Roman', Times, serif;
 }
 
 .hero p {
 	font-size: clamp(1rem, 3vw, 1.25rem);
 	color: #e0e0e0;
 	margin-bottom: 40px;
-	font-weight: 300;
+	font-weight: 400;
 }
 
 .btn {
