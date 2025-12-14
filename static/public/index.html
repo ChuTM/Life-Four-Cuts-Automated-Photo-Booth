@@ -9,7 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/colors.css">
     <link rel="stylesheet" href="/index.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 
 <body>
@@ -41,7 +43,7 @@
                     </p>
                 </div>
                 <div class="about-image animate-on-scroll">
-                    <img src="https://placehold.co/800x1000/e8f4f8/111111?text=BOOTH&font=playfair"
+                    <img src="https://placehold.co/800x700/e8f4f8/111111?text=BOOTH&font=playfair"
                         alt="Our Photo Booth">
                 </div>
             </div>
@@ -50,7 +52,7 @@
                 <div class="about-text animate-on-scroll">
                     <h2 class="section-title">Finding Our Booth</h2>
                     <p>
-                        We are located at the <b class="nowrap">Covered-Playground</b>, SCC<br> on <b>28-29 Nov
+                        We are located at the <b class="nowrap">Covered-Playground</b>, SCC<br> on <b class="serif">20 Dec
                             2025</b>.
                     </p>
                 </div>
@@ -171,8 +173,7 @@
                 <p>Be among the first to experience and enjoy exclusive benefits. Register now to secure
                     priority access and special offers for your upcoming event.</p>
                 <form class="early-bird-form" id="earlyBirdForm">
-                    <h1 id="code"></h1>
-                    <br>
+                    <h1 id="code" style="margin: 0 auto;"></h1>
                     <button type="submit">Get your code</button>
                 </form>
                 <div class="success-message" id="successMessage">Thank you for registering! You may screenshot this
@@ -185,7 +186,10 @@
     <footer class="footer" id="contact">
         <div class="container">
             <div class="copyright animate-on-scroll">
+                Using our services means you accept our <a
+                    href="https://scc-2025-open-day.web.app/policies/">policies</a>.<br>
                 &copy; SCC Info Day/Open Day Info Tech Organising Team.
+                <br>All Rights Reserved.
             </div>
         </div>
     </footer>
@@ -194,15 +198,38 @@
         // Unique key for this specific booth/event
         const STORAGE_KEY = 'scc_fourcut_earlybird_code';
 
-        // Early Bird Registration Logic with localStorage
+        // Cookie helper functions
+        function setCookie(name, value, days = 3650) {  // ~10 years
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "; expires=" + date.toUTCString();
+            document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function deleteCookie(name) {
+            document.cookie = name + "=; Max-Age=0; path=/;";
+        }
+
+        // Early Bird Registration Logic with persistent cookies
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('earlyBirdForm');
             const codeDisplay = document.getElementById('code');
             const submitBtn = form.querySelector('button[type="submit"]');
             const successMessage = document.getElementById('successMessage');
 
-            // Check if user already has a code
-            const savedCode = localStorage.getItem(STORAGE_KEY);
+            // Check if user already has a code in cookies
+            const savedCode = getCookie(STORAGE_KEY);
 
             if (savedCode) {
                 // User already registered — show code and disable form
@@ -218,8 +245,8 @@
                     // Generate 6-digit code
                     const newCode = String(Math.floor(100000 + Math.random() * 900000));
 
-                    // Save to localStorage
-                    localStorage.setItem(STORAGE_KEY, newCode);
+                    // Save to persistent cookie (~10 years)
+                    setCookie(STORAGE_KEY, newCode, 3650);
 
                     // Update UI
                     codeDisplay.innerText = newCode;
@@ -229,9 +256,9 @@
                     successMessage.style.opacity = '1';
                     successMessage.innerHTML = 'Thank you! You may screenshot this page. Your code is permanent.';
 
-                    // Optional: auto-hide message after 10 seconds (or keep visible)
+                    // Optional: fade message slightly after 10 seconds
                     setTimeout(() => {
-                        if (localStorage.getItem(STORAGE_KEY) === newCode) {
+                        if (getCookie(STORAGE_KEY) === newCode) {
                             successMessage.style.opacity = '0.9';
                         }
                     }, 10000);
@@ -244,7 +271,6 @@
             threshold: 0.1,
             rootMargin: '50px 0px -50px 0px'
         };
-
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -252,11 +278,11 @@
                 }
             });
         }, observerOptions);
-
         document.querySelectorAll('.animate-on-scroll').forEach(el => {
             observer.observe(el);
         });
 
+        // Redirect if ?l= param exists (Google Drive link)
         const params = new URLSearchParams(location.search);
         const driveId = params.get('l');
         if (driveId) {

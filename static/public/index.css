@@ -7,52 +7,59 @@
 
 html {
 	scroll-behavior: smooth;
-	/* Smooth scrolling */
 }
 
 body {
-	font-family: "Inter", sans-serif;
-	background-color: #ffffff;
-	color: #333333;
+	font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont,
+		"Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+		"Helvetica Neue", sans-serif;
+	background-color: var(--color-bg-primary);
+	color: var(--color-text-primary);
 	min-height: 100vh;
 	line-height: 1.6;
 	padding-top: 80px;
 	padding: 0;
 	width: 100%;
 	overflow-x: hidden;
-	/* Space for fixed button */
 }
 
 .container {
 	width: 100%;
 	max-width: 1200px;
-	/* Optimized container width */
 	margin: 0 auto;
 	padding: 0 25px;
-	/* Mobile-friendly padding */
 }
 
-/* --- Fixed Booking Button (Replaces Navigation Bar) --- */
+/* --- Fixed Booking Button --- */
 .booking-btn {
 	position: fixed;
-	top: 20px;
+	top: -100px;
 	left: 50%;
 	transform: translateX(-50%);
-	background-color: #d4af37;
-	color: #ffffff;
+	background-color: var(--color-accent-primary);
+	color: var(--color-text-primary);
 	padding: 12px 30px;
 	border-radius: 50px;
-	/* More rounded button */
 	font-weight: 600;
 	text-decoration: none;
-	transition: all 0.3s ease;
+	transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 	z-index: 1000;
-	box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
-	letter-spacing: 1px;
+	box-shadow: 0 4px 20px rgba(163, 177, 138, 0.5);
+}
+
+.booking-btn.visible {
+	top: 20px;
+}
+
+.booking-btn.hide-on-scroll {
+	top: -100px;
+	opacity: 0;
+	pointer-events: none;
 }
 
 .booking-btn:hover {
-	background-color: #111111;
+	background-color: var(--color-accent-secondary);
+	color: var(--color-bg-primary);
 	transform: translateX(-50%) translateY(-2px);
 	box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
 }
@@ -64,7 +71,6 @@ body {
 /* --- Hero Section --- */
 .hero {
 	height: calc(100vh - 80px);
-	/* Subtract height of top button */
 	display: flex;
 	align-items: end;
 	justify-content: start;
@@ -81,28 +87,20 @@ body {
 	background-repeat: no-repeat;
 	background-position: center;
 	font-size: clamp(4.5rem, 12vw, 8rem);
-
 	animation: appears 1s ease-in-out forwards;
 }
 
 @keyframes appears {
-	from {
-		opacity: 0;
-	}
-
-	to {
-		opacity: 1;
-	}
+	from { opacity: 0; }
+	to { opacity: 1; }
 }
 
 .hero::before {
 	content: "";
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: #000;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: var(--color-overlay-dark);
 	background-size: cover;
 	background-position: center;
 	filter: brightness(0.55);
@@ -111,13 +109,14 @@ body {
 }
 
 @keyframes subtleZoom {
-	0% {
-		transform: scale(1);
-	}
+	0% { transform: scale(1); }
+	100% { transform: scale(1.05); }
+}
 
-	100% {
-		transform: scale(1.05);
-	}
+.serif {
+	font-family: 'Times New Roman', Times, serif;
+	font-size: 1.5rem;
+	color: var(--pure-black);
 }
 
 .hero-content {
@@ -127,17 +126,16 @@ body {
 
 .hero h1 {
 	font-size: clamp(2.5rem, 8vw, 4.5rem);
-	/* Responsive font size */
 	font-weight: 700;
-	color: #ffffff;
+	color: var(--color-bg-primary);
 	margin-bottom: 25px;
 	line-height: 0.9;
-	font-family: 'Times New Roman', Times, serif;
+	font-family: "Times New Roman", Times, serif;
 }
 
 .hero p {
 	font-size: clamp(1rem, 3vw, 1.25rem);
-	color: #e0e0e0;
+	color: var(--color-accent-primary);
 	margin-bottom: 40px;
 	font-weight: 400;
 }
@@ -145,14 +143,13 @@ body {
 .btn {
 	display: inline-block;
 	background-color: transparent;
-	color: #ffffff;
-	border: 1px solid #ffffff;
+	color: var(--color-bg-primary);
+	border: 1px solid var(--color-bg-primary);
 	padding: 15px 35px;
 	font-size: 1rem;
 	font-weight: 500;
 	text-decoration: none;
 	transition: all 0.3s ease;
-	letter-spacing: 2px;
 	position: relative;
 	overflow: hidden;
 }
@@ -160,10 +157,8 @@ body {
 .btn::after {
 	content: "";
 	position: absolute;
-	top: 0;
-	left: -100%;
-	width: 100%;
-	height: 100%;
+	top: 0; left: -100%;
+	width: 100%; height: 100%;
 	background-color: rgba(255, 255, 255, 0.1);
 	transition: all 0.5s ease;
 	transform: skewX(-25deg);
@@ -174,8 +169,8 @@ body {
 }
 
 .btn:hover {
-	background-color: #ffffff;
-	color: #111111;
+	background-color: var(--color-bg-primary);
+	color: var(--color-text-primary);
 }
 
 /* --- About Us --- */
@@ -186,7 +181,6 @@ body {
 .about-content {
 	display: flex;
 	flex-direction: column;
-	/* Mobile-first, vertical arrangement */
 	gap: 60px;
 }
 
@@ -208,15 +202,15 @@ body {
 	height: auto;
 	display: block;
 	box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
-	border-radius: 2px;
+	border-radius: 17px;
+	border: 1px solid var(--color-border-subtle);
 }
 
 .section-title {
 	font-size: clamp(1.8rem, 5vw, 2.5rem);
 	font-weight: 700;
 	margin-bottom: 30px;
-	color: #111111;
-	letter-spacing: 2px;
+	color: var(--color-text-primary);
 	position: relative;
 	padding-bottom: 15px;
 	text-align: left;
@@ -225,20 +219,19 @@ body {
 .section-title::after {
 	content: "";
 	position: absolute;
-	bottom: 0;
-	left: 0;
+	bottom: 0; left: 0;
 	width: 60px;
 	height: 2px;
-	background-color: #d4af37;
+	background-color: var(--color-accent-primary);
 }
 
 .about-text p {
-	color: #666666;
+	color: var(--color-text-subtle);
 	margin-bottom: 25px;
 	font-size: 1.05rem;
 }
 
-/* --- New: Team Introduction --- */
+/* --- Team Introduction --- */
 .team-intro {
 	margin-top: 80px;
 	text-align: center;
@@ -266,19 +259,19 @@ body {
 
 .team-member h4 {
 	font-weight: 600;
-	color: #111;
+	color: var(--color-text-primary);
 	margin-bottom: 5px;
 }
 
 .team-member p {
-	color: #777;
+	color: var(--color-text-subtle);
 	font-size: 0.9rem;
 }
 
 /* --- Services --- */
 .services {
 	padding: 120px 0;
-	background-color: #f9f9f9;
+	background-color: var(--color-bg-alt);
 }
 
 .services-header {
@@ -289,47 +282,44 @@ body {
 .services-header p {
 	max-width: 700px;
 	margin: 20px auto 0;
-	color: #666666;
+	color: var(--color-text-subtle);
 }
 
 .services-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-	/* More compact grid */
 	gap: 30px;
 }
 
 .service-card {
-	background-color: #ffffff;
+	background-color: var(--color-bg-card);
 	padding: 50px 30px;
 	text-align: center;
 	transition: all 0.5s ease;
 	position: relative;
 	overflow: hidden;
-	border-radius: 2px;
+	border: 1px solid var(--color-border-subtle);
+	border-radius: 11px;
 	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
 }
 
-/* --- Fixed Service Card Hover Effects --- */
 .service-card:hover {
 	transform: translateY(-10px);
-	box-shadow: 0 20px 30px rgba(0, 0, 0, 0.08);
+	box-shadow: 0 20px 30px rgba(163, 177, 138, 0.2);
 }
 
 .service-card:hover .service-icon {
-	background-color: #111111;
-	color: #ffffff;
+	background-color: var(--color-accent-secondary);
+	color: var(--color-bg-primary);
 	transform: scale(1.1);
 }
 
 .service-card::before {
 	content: "";
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 0;
-	height: 3px;
-	background-color: #d4af37;
+	top: 0; left: 0;
+	width: 0; height: 3px;
+	background-color: var(--color-accent-primary);
 	transition: width 0.3s ease;
 }
 
@@ -342,7 +332,7 @@ body {
 	height: 80px;
 	margin: 0 auto 25px;
 	border-radius: 50%;
-	background-color: #f0f0f0;
+	background-color: var(--color-bg-alt);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -351,18 +341,17 @@ body {
 
 .service-icon i {
 	font-size: 2rem;
-	color: #111111;
+	color: var(--color-text-primary);
 }
 
 .service-card h3 {
 	font-size: 1.3rem;
 	font-weight: 600;
 	margin-bottom: 15px;
-	letter-spacing: 1px;
 }
 
 .service-card p {
-	color: #777777;
+	color: var(--color-text-subtle);
 	font-size: 0.95rem;
 }
 
@@ -379,7 +368,7 @@ body {
 .process-header p {
 	max-width: 700px;
 	margin: 20px auto 0;
-	color: #666666;
+	color: var(--color-text-subtle);
 }
 
 .process-steps {
@@ -403,7 +392,7 @@ body {
 		left: 10%;
 		right: 10%;
 		height: 1px;
-		background-color: #eeeeee;
+		background-color: var(--color-accent-primary);
 		z-index: 1;
 	}
 }
@@ -419,8 +408,8 @@ body {
 .step-number {
 	width: 100px;
 	height: 100px;
-	background-color: #ffffff;
-	border: 1px solid #eeeeee;
+	background-color: var(--color-bg-primary);
+	border: 1px solid var(--color-accent-primary);
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
@@ -428,7 +417,7 @@ body {
 	margin: 0 auto 25px;
 	font-size: 1.8rem;
 	font-weight: 700;
-	color: #111111;
+	color: var(--color-text-primary);
 	transition: all 0.3s ease;
 	position: relative;
 	overflow: hidden;
@@ -437,19 +426,12 @@ body {
 .step-number::after {
 	content: "";
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: #d4af37;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background-color: var(--color-accent-primary);
 	transform: translateY(100%);
 	transition: transform 0.5s ease;
 	z-index: -1;
-}
-
-.process-step:hover .step-number {
-	color: #ffffff;
-	border-color: #d4af37;
 }
 
 .process-step:hover .step-number::after {
@@ -463,15 +445,15 @@ body {
 }
 
 .process-step p {
-	color: #777777;
+	color: var(--color-text-subtle);
 	font-size: 0.9rem;
 }
 
 /* --- Early Bird Registration --- */
 .early-bird {
 	padding: 120px 0;
-	background-color: #111111;
-	color: #ffffff;
+	background-color: var(--color-overlay-light);
+	color: var(--color-bg-primary);
 	position: relative;
 	overflow: hidden;
 }
@@ -479,10 +461,8 @@ body {
 .early-bird::before {
 	content: "";
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
 	background-image: url("https://placehold.co/1920x1080/222222/FFFFFF?text=EARLY+BIRD&font=playfair");
 	background-size: cover;
 	background-position: center;
@@ -502,11 +482,11 @@ body {
 }
 
 .early-bird .section-title {
-	color: #ffffff;
+	color: var(--color-bg-primary);
 }
 
 .early-bird p {
-	color: #e0e0e0;
+	color: var(--color-accent-primary);
 	margin: 25px 0 35px;
 	font-size: 1.05rem;
 }
@@ -514,58 +494,53 @@ body {
 .early-bird-form {
 	display: flex;
 	flex-direction: column;
-	/* Mobile-first, vertical arrangement */
 	gap: 15px;
 	max-width: 450px;
 	margin: 0 auto;
 }
 
-@media (min-width: 768px) {
-	.early-bird-form {
-		flex-direction: row;
-		gap: 20px;
-	}
-}
-
 .early-bird-form input {
 	flex: 1;
 	padding: 15px 20px;
-	background-color: rgba(255, 255, 255, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	border-radius: 2px;
-	color: #ffffff;
+	background-color: rgba(218, 215, 205, 0.1);
+	border: 1px solid rgba(218, 215, 205, 0.2);
+	border-radius: 7px;
+	color: var(--color-bg-primary);
 	font-size: 1rem;
 	transition: all 0.3s ease;
 }
 
 .early-bird-form input:focus {
 	outline: none;
-	border-color: #d4af37;
-	background-color: rgba(255, 255, 255, 0.15);
+	border-color: var(--color-accent-primary);
+	background-color: rgba(218, 215, 205, 0.15);
 }
 
 .early-bird-form button {
-	background-color: #d4af37;
-	color: #ffffff;
+	background-color: var(--color-accent-primary);
+	color: var(--color-overlay-light);
 	border: none;
 	padding: 15px 30px;
-	border-radius: 2px;
+	border-radius: 11px;
 	font-weight: 500;
 	font-size: 1rem;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	letter-spacing: 1px;
 }
 
 .early-bird-form button:hover {
-	background-color: #ffffff;
-	color: #111111;
+	background-color: var(--color-bg-primary);
+	color: var(--color-overlay-light);
 	transform: translateY(-2px);
+}
+
+.early-bird-form button[disabled] {
+	display: none;
 }
 
 .success-message {
 	margin-top: 20px;
-	color: #d4af37;
+	color: var(--color-accent-primary);
 	font-weight: 500;
 	opacity: 0;
 	transition: opacity 0.3s ease;
@@ -573,8 +548,8 @@ body {
 
 /* --- Footer --- */
 .footer {
-	background-color: #111111;
-	color: #ffffff;
+	background-color: var(--color-overlay-dark);
+	color: var(--color-bg-primary);
 	padding: 80px 0 40px;
 }
 
@@ -589,7 +564,6 @@ body {
 	font-size: 1rem;
 	font-weight: 600;
 	margin-bottom: 25px;
-	letter-spacing: 2px;
 	position: relative;
 	padding-bottom: 12px;
 }
@@ -597,16 +571,15 @@ body {
 .footer-col h4::after {
 	content: "";
 	position: absolute;
-	bottom: 0;
-	left: 0;
+	bottom: 0; left: 0;
 	width: 30px;
 	height: 1px;
-	background-color: #555555;
+	background-color: var(--color-accent-secondary);
 }
 
 .footer-col p,
 .footer-col a {
-	color: #aaaaaa;
+	color: var(--color-accent-primary);
 	margin-bottom: 12px;
 	font-size: 0.9rem;
 	text-decoration: none;
@@ -615,7 +588,7 @@ body {
 }
 
 .footer-col a:hover {
-	color: #ffffff;
+	color: var(--color-bg-primary);
 }
 
 .social-links {
@@ -629,41 +602,31 @@ body {
 	width: 36px;
 	height: 36px;
 	border-radius: 50%;
-	background-color: #222222;
-	color: #ffffff;
+	background-color: var(--color-overlay-light);
+	color: var(--color-bg-primary);
 	text-align: center;
 	line-height: 36px;
 	transition: all 0.3s ease;
 }
 
 .social-links a:hover {
-	background-color: #d4af37;
+	background-color: var(--color-accent-primary);
 	transform: translateY(-3px);
 }
 
 .copyright {
 	text-align: center;
 	padding-top: 40px;
-	border-top: 1px solid #222222;
-	color: #666666;
+	border-top: 1px solid var(--color-overlay-light);
+	color: var(--color-accent-secondary);
 	font-size: 0.8rem;
-	letter-spacing: 1px;
 }
 
-/* --- Animation Keyframes --- */
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translateY(30px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+.copyright a {
+	color: var(--color-accent-primary);
 }
 
-/* --- Scroll Animation Classes --- */
+/* --- Scroll Animations --- */
 .animate-on-scroll {
 	opacity: 0;
 	transform: translateY(30px);
@@ -675,7 +638,6 @@ body {
 	transform: translateY(0);
 }
 
-/* Different delays for different blocks to create a layered effect */
 .services-grid .service-card:nth-child(2),
 .process-steps .process-step:nth-child(2) {
 	transition-delay: 0.1s;
@@ -697,41 +659,4 @@ body {
 
 .nowrap {
 	white-space: nowrap;
-}
-
-/* Enhanced Fixed Booking Button with slide-in & scroll behavior */
-.booking-btn {
-	position: fixed;
-	top: -100px;
-	/* Start hidden above the viewport */
-	left: 50%;
-	transform: translateX(-50%);
-	background-color: #d4af37;
-	color: #ffffff;
-	padding: 12px 30px;
-	border-radius: 50px;
-	font-weight: 600;
-	text-decoration: none;
-	transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-	z-index: 1000;
-	box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
-	letter-spacing: 1px;
-}
-
-/* Visible state (slides down) */
-.booking-btn.visible {
-	top: 20px;
-}
-
-/* Hidden when scrolled past hero */
-.booking-btn.hide-on-scroll {
-	top: -100px;
-	opacity: 0;
-	pointer-events: none;
-}
-
-.booking-btn:hover {
-	background-color: #111111;
-	transform: translateX(-50%) translateY(-2px);
-	box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
 }

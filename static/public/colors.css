@@ -1,0 +1,13 @@
+:root {
+	--color-bg-primary: #f5f0e8; /* Warm Ivory - elegant light background */
+	--color-text-primary: #2d3a2f; /* Deep Forest Green - rich dark text */
+	--color-accent-primary: #8a9a5b; /* Muted Sage Gold - sophisticated earthy accent */
+	--color-accent-secondary: #556b2f; /* Deep Olive - luxurious green accent */
+	--color-overlay-dark: #1e2a22; /* Charcoal Pine - deep overlay */
+	--color-overlay-light: #3f4a3c; /* Soft Moss Teal - subtle overlay */
+	--color-text-subtle: #6b7a4e; /* Warm Olive - refined subtle text */
+	--color-bg-card: #fdfdfb; /* Soft Cream - premium card background */
+	--color-bg-alt: #ebe6df; /* Light Taupe - elegant alternate section */
+	--color-border-subtle: rgba(45, 58, 47, 0.08); /* Subtle deep green tint */
+    --pure-black: #000;
+}
