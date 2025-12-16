@@ -12,10 +12,13 @@
     <link rel="stylesheet" href="/colors.css">
     <link rel="stylesheet" href="/index.css">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preload" href="./assets/scc.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="https://alphabrate.github.io/art/assets/logo/dark.svg" as="image" type="image/svg+xml">
+    <meta name="description" content="An automated, self‑hosted photo booth at the SCC Open Day Exhibition. Visitors may capture four‑cut photo strips, personalise them with themed frames and filters, receive digital copies via QR code, and take away both a printed strip and a specially crafted keyring featuring a miniature photo with a sound effect.">
 </head>
 
 <body>
-    <img src="./assets/scc.svg" class="scc">
+    <img src="./assets/scc.svg" fetchpriority="high" class="scc" alt="45th Anniversary Logo of SCC designed by students.">
 
     <!-- Fixed Booking Button -->
     <a href="#early-bird" class="booking-btn">
@@ -25,7 +28,7 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content animate-on-scroll">
-            <h1><span class="normal">The </span><span class="art-text">Art</span><br>of Capture</h1>
+            <h1><span class="normal">The </span><span class="art-text" fetchpriority="high">Art</span><br>of Capture</h1>
             <p>Experience the automation</p>
             <a href="#services" class="btn">Explore Services</a>
         </div>
