@@ -573,8 +573,108 @@ body {
 		color: rgba(0, 0, 0, 0.4);
 	}
 
+	button:not(.show) {
+		filter: blur(50px);
+	}
+
 	button.skip {
-		display: none;
+		transition: 1s;
+		/* display: none; */
+		position: absolute;
+		bottom: 50px;
+		right: 50px;
+		border: none;
+		outline: none;
+		background: #925d5e;
+		color: white;
+		font-size: 45px;
+		font-weight: bold;
+
+		padding: 5px 35px;
+
+		border-radius: 14px;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		&::after {
+			content: "";
+			background: url(/assets/icons/forward.svg);
+			width: 32px;
+			height: 32px;
+			background-size: contain;
+			background-repeat: no-repeat;
+			display: inline-block;
+			margin-left: 1rem;
+		}
+	}
+
+	button.toggle-preview-collapse {
+		transition: 1s;
+		position: absolute;
+		bottom: 50px;
+		left: 50px;
+		border: none;
+		outline: none;
+		background: #925d5e;
+		color: white;
+		font-size: 45px;
+		font-weight: bold;
+
+		padding: 5px 25px;
+
+		border-radius: 14px;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		.animated-arrows {
+			width: 32px;
+			height: 32px;
+			position: relative;
+			margin-left: 1rem;
+
+			&::before {
+				content: "";
+				position: absolute;
+				top: 0;
+				right: 0;
+				width: 16px;
+				height: 32px;
+				background: url(/assets/icons/half-arrow.svg);
+				background-size: contain;
+				background-repeat: no-repeat;
+				transition: 1.5s cubic-bezier(0.87, 0, 0.13, 1);
+			}
+
+			&::after {
+				content: "";
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				width: 16px;
+				height: 32px;
+				background: url(/assets/icons/half-arrow.svg);
+				background-size: contain;
+				background-repeat: no-repeat;
+				transform: rotate(180deg);
+				transition: 1.5s cubic-bezier(0.87, 0, 0.13, 1);
+			}
+
+			&.collapsed {
+				&::before {
+					top: -50%;
+					transform: rotate(180deg);
+				}
+
+				&::after {
+					bottom: -50%;
+					transform: rotate(360deg);
+				}
+			}
+		}
 	}
 }
 

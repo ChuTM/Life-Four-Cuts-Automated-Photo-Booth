@@ -555,12 +555,19 @@ function startFilmingProcess() {
 	function countdownStarts() {
 		let countdown = COUNTDOWN_SECONDS;
 
+		$("button.skip").classList.add("show");
+		$("button.toggle-preview-collapse").classList.add("show");
+
 		// Allow skipping to final 6 seconds
 		$("button.skip").onclick = () => {
 			if (countdown > 6) countdown = 6;
 		};
 
 		$("button.toggle-preview-collapse").onclick = () => {
+			// Toggle preview collapse state
+			// Toggle Class
+			$("button.toggle-preview-collapse>.animated-arrows").classList.toggle("collapsed");
+
 			socket.emit("chat message", {
 				name: deviceName,
 				msg: `:toggle-collapse`,
