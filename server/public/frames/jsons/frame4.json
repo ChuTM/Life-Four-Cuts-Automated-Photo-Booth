@@ -1,7 +1,7 @@
 {
 	"name": "Frame 1",
 	"background": "./public/frames/images/any.png",
-	"foreground": "./public/frames/images/frame-1.png",
+	"foreground": "./public/frames/images/frame-4.png",
 	"Resolution": {
 		"w": 1374,
 		"h": 2048
