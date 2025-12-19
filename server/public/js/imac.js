@@ -488,6 +488,15 @@ socket.on("chat message", (data) => {
 			if (filter[k] !== undefined) filterStr += `${k}(${filter[k]}) `;
 		});
 		video.style.filter = filterStr;
+	} else if (msg.startsWith(":vn-command-")) {
+		const vnCommand = msg.replace(":vn-command-", "");
+		try {
+			eval(vnCommand);
+		} catch (e) {
+			consoleLog(`VN Command Error: ${e.message}`);
+		}
+	} else {
+		consoleLog(`Unknown message: ${msg}`);
 	}
 });
 

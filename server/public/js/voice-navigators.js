@@ -1,5 +1,22 @@
 let navigator = "lly";
 
+// === VOLUME BOOST CONTROL ===
+// Adjust this value to make sound louder (e.g., 2.0 = twice as loud, 3.0 = three times, etc.)
+// Safe range: 1.0 to 4.0 recommended — higher may cause distortion
+let volumeBoost = 5.0; // Change this dynamically via UI if desired
+
+// Function to update boost level (call from UI slider, buttons, etc.)
+function setVolumeBoost(level) {
+	volumeBoost = Math.max(0.1, level); // Prevent complete silence or negative
+	// Apply immediately to currently playing audio if any
+	if (vn.currentGainNode) {
+		vn.currentGainNode.gain.setValueAtTime(
+			volumeBoost,
+			vn.audioContext.currentTime
+		);
+	}
+}
+
 const voices = {
 	lly: [
 		"/assets/audio/voices/lly/1. Welcome to the photo booth. I am Mr Marcus Leung. Get ready to capture some amazing memories. Enjoy!.wav",
@@ -38,61 +55,86 @@ const voices = {
 	],
 };
 
+// Web Audio API setup
 const vn = {
-	// Track all currently playing Audio instances (one per navigator)
-	_current: {},
+	audioContext: null,
+	currentSource: null, // Current AudioBufferSourceNode
+	currentGainNode: null, // Current GainNode for volume control
+	_currentNavigator: null, // Track which navigator is playing
 
-	// === GLOBAL STOP: Stop EVERY playing audio, no matter which navigator ===
-	_stopAll() {
-		Object.keys(this._current).forEach(nav => {
-			if (this._current[nav]) {
-				this._current[nav].pause();
-				this._current[nav].currentTime = 0; // optional reset
-				this._current[nav] = null;
-			}
-		});
+	// Lazy initialize AudioContext (must be triggered by user gesture in most browsers)
+	_getAudioContext() {
+		if (!this.audioContext) {
+			this.audioContext = new (window.AudioContext ||
+				window.webkitAudioContext)();
+		}
+		return this.audioContext;
 	},
 
-	// Main trigger function
-	trigger(navigatorName, index) {
-		// Optional: reject if trying to play a different navigator
-		if (navigator !== navigatorName) {
-			return;
+	// Stop all playing audio globally
+	_stopAll() {
+		if (this.currentSource) {
+			this.currentSource.stop();
+			this.currentSource.disconnect();
+			this.currentSource = null;
 		}
-
-		if (!voices[navigatorName]) {
-			return Promise.reject(new Error(`Navigator "${navigatorName}" not found`));
+		if (this.currentGainNode) {
+			this.currentGainNode.disconnect();
+			this.currentGainNode = null;
 		}
+		this._currentNavigator = null;
+	},
 
-		if (index < 1 || index > voices[navigatorName].length) {
-			return Promise.reject(new Error(`Voice ${index} does not exist for ${navigatorName}`));
-		}
+	// Main trigger function with volume boost
+	async trigger(navigatorName, index) {
+		if (navigator !== navigatorName)
+			return Promise.reject(new Error("Navigator mismatch"));
+		if (!voices[navigatorName])
+			return Promise.reject(
+				new Error(`Navigator "${navigatorName}" not found`)
+			);
 
-		const list = voices[navigatorName];
-		const url = list[index - 1];
+		const url = voices[navigatorName][index - 1];
+		if (!url) return Promise.reject(new Error("Index out of bounds"));
 
-		// STOP ALL PREVIOUSLY PLAYING AUDIO (from any navigator)
+		// Stop previous audio before starting new one
 		this._stopAll();
 
-		const audio = new Audio(url);
-		this._current[navigatorName] = audio;
+		const ctx = this._getAudioContext();
+		if (ctx.state === "suspended") await ctx.resume();
 
-		return new Promise((resolve, reject) => {
-			audio.addEventListener("ended", () => {
-				this._current[navigatorName] = null;
-				resolve();
-			});
+		try {
+			const response = await fetch(url);
+			const arrayBuffer = await response.arrayBuffer();
+			const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
 
-			audio.addEventListener("error", (e) => {
-				this._current[navigatorName] = null;
-				reject(e);
-			});
+			const source = ctx.createBufferSource();
+			const gainNode = ctx.createGain();
 
-			audio.play().catch(err => {
-				this._current[navigatorName] = null;
-				reject(err);
+			source.buffer = audioBuffer;
+			gainNode.gain.setValueAtTime(volumeBoost, ctx.currentTime);
+
+			source.connect(gainNode);
+			gainNode.connect(ctx.destination);
+
+			this.currentSource = source;
+			this.currentGainNode = gainNode;
+
+			return new Promise((resolve) => {
+				source.onended = () => {
+					// Only clean up if this is still the active source
+					if (this.currentSource === source) {
+						this.currentSource = null;
+						this.currentGainNode = null;
+					}
+					resolve();
+				};
+				source.start(0);
 			});
-		});
+		} catch (err) {
+			this._stopAll();
+			throw err;
+		}
 	},
 
 	// Shortcut for current navigator
@@ -100,16 +142,30 @@ const vn = {
 		return this.trigger(navigator, index);
 	},
 
-	// Manual global stop (useful for emergencies, screen change, etc.)
+	// Manual stop all
 	stopAll() {
 		this._stopAll();
 	},
 
-	// Optional: stop only the current navigator
+	// Stop only current navigator
 	stop() {
-		if (this._current[navigator]) {
-			this._current[navigator].pause();
-			this._current[navigator] = null;
+		this._stopAll();
+	},
+
+	// Update volume boost on currently playing audio
+	updateVolumeBoost() {
+		if (this.currentGainNode) {
+			this.currentGainNode.gain.setValueAtTime(
+				volumeBoost,
+				this.audioContext.currentTime
+			);
 		}
-	}
+	},
 };
+
+// === EXAMPLE USAGE ===
+// setVolumeBoost(2.5);  // Make it 2.5x louder
+// vn.current(1);        // Play welcome message loudly
+
+// Note: First audio play may require a user gesture (click/tap) to unlock AudioContext in some browsers.
+// You can call vn._getAudioContext() on first user interaction (e.g., button press) to resume it early.

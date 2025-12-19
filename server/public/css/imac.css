@@ -113,8 +113,8 @@ body {
 	transition: 1s cubic-bezier(0.87, 0, 0.13, 1);
 
 	/* specific size for the UI preview */
-	width: 10cm;
-	height: 15cm;
+	width: 15cm;
+	height: 22.5cm;
 
 	z-index: 10;
 	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);

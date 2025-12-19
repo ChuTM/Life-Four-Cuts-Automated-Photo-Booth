@@ -47,9 +47,14 @@ function tryStart() {
 	$(".page-1").classList.add("hide");
 	$(".page-1").style.transform = "translateY(100%)";
 
+	console.log("object");
+
 	setTimeout(() => {
 		$(".page-2").classList.remove("hide");
-		if (navigator === "lly") vn.trigger(navigator, 2);
+		if (navigator === "lly") {
+			vn.trigger(navigator, 2);
+			sendVNCommand(`vn.trigger(navigator, 2);`);
+		}
 	}, 400);
 }
 
@@ -61,10 +66,12 @@ const update = () => {
 		if (i === currentIndex) {
 			el.classList.add("current");
 			navigator = el.getAttribute("data-navigator");
+			sendVNCommand(`navigator = "${navigator}";`);
 			vn.trigger(navigator, 1).then(() => {
 				introing = false;
 				tryStart();
 			});
+			sendVNCommand(`vn.trigger(navigator, 1);`);
 		} else if (i < currentIndex) el.classList.add("up");
 		else el.classList.add("down");
 	});
@@ -99,13 +106,17 @@ $(".start-button").addEventListener("click", () => {
 		msg: `:starts-${Date.now()}`,
 	});
 
+	console.log(navigator, "test point");
+
 	if (!introing) {
 		if (introed) {
 			tryStart();
 		} else {
 			vn.trigger(navigator, 1).then(() => {
+				console.log(navigator, "test point 2");
 				tryStart();
 			});
+			sendVNCommand(`vn.trigger(navigator, 1);`);
 		}
 	}
 });
@@ -175,10 +186,15 @@ $(".frame-button").addEventListener("click", () => {
 	$(".page-2").classList.add("hide");
 
 	vn.trigger("lly", 3);
+	sendVNCommand(`vn.trigger("lly", 3);`);
 	vn.trigger("cml", 2);
+	sendVNCommand(`vn.trigger("cml", 2);`);
 	vn.trigger("csl", 2);
+	sendVNCommand(`vn.trigger("csl", 2);`);
 	vn.trigger("hht", 2);
+	sendVNCommand(`vn.trigger("hht", 2);`);
 });
+
 const swiper = $("#filterSwiper");
 const track = $(".carousel-track");
 const filters = $(".carousel-track .filter");
@@ -199,248 +215,149 @@ const VELOCITY_THRESHOLD = 0.3; // px/ms threshold for a fast swipe
 
 /**
  * Calculates the target X translation (in pixels) to center a filter.
- * The math relies on the fact that each filter (with its margins) occupies 100vw.
- * The translation is applied to the 'track'.
- * @param {number} index - Index of filter to center.
- * @returns {number} The required translateX value in pixels.
  */
 function calculateTargetTranslation(index) {
-	// Recalculate vwUnit on demand for responsiveness
 	vwUnit = window.innerWidth / 100;
-
-	// Total space occupied by one slide unit (100vw)
 	const slideUnitPx = 100 * vwUnit;
-
-	// To center the filter, we translate the track by the distance of all previous slides.
 	return -(index * slideUnitPx);
 }
 
-/**
- * Applies the calculated translation and updates the current index state.
- * @param {number} index - Index of filter to display
- */
 function snapToFilterIndex(index) {
-	// Clamp index within bounds
 	currentFilterIndex = Math.min(Math.max(index, 0), filterCount - 1);
-
 	const targetX = calculateTargetTranslation(currentFilterIndex);
-
-	// Apply the transform
 	track.style.transform = `translateX(${targetX}px)`;
 	currentTranslateX = targetX;
-
-	syncFilter(); // Update server with current filter
+	syncFilter();
 }
 
-/**
- * Starts drag operation (touch or mouse)
- * @param {Event} e - Touch or mouse event
- */
 function startDrag(e) {
 	isDragging = true;
-	// Get initial X position
 	startX = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
-
-	// Disable CSS transition during drag for immediate response
 	track.style.transition = "none";
-
-	// Set current X position to where the transition ended
 	const transformMatch = track.style.transform.match(/translateX\((.*?)px\)/);
 	currentTranslateX = transformMatch ? parseFloat(transformMatch[1]) : 0;
-
-	// Initialize velocity tracking variables
 	lastDragX = startX;
 	lastDragTime = Date.now();
-	dragVelocity = 0; // Reset velocity
-
+	dragVelocity = 0;
 	swiper.style.cursor = "grabbing";
-	e.preventDefault(); // Prevent accidental selection
+	e.preventDefault();
 }
 
-/**
- * Handles drag movement - Includes Velocity Calculation
- * @param {Event} e - Touch or mouse event
- */
 function drag(e) {
 	if (!isDragging) return;
-
 	const currentX = e.type.includes("mouse")
 		? e.clientX
 		: e.touches[0].clientX;
-
 	dragDistance = currentX - startX;
-
-	// --- Velocity Calculation ---
 	const currentTime = Date.now();
 	const timeDiff = currentTime - lastDragTime;
-
 	if (timeDiff > 0) {
 		const deltaX = currentX - lastDragX;
-		// Velocity is distance moved over time passed (px/ms)
 		dragVelocity = deltaX / timeDiff;
 	}
-
 	lastDragX = currentX;
 	lastDragTime = currentTime;
-	// --- End Velocity Calculation ---
-
-	// Apply new transform: current position + drag distance
 	const newX = currentTranslateX + dragDistance;
 	track.style.transform = `translateX(${newX}px)`;
 }
 
-/**
- * Ends drag operation and snaps to the nearest filter - Incorporates Velocity
- */
 function endDrag() {
 	if (!isDragging) return;
 	isDragging = false;
-
-	// Re-enable CSS transition for the snap back/to
 	track.style.transition = "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
 	swiper.style.cursor = "grab";
 
-	// Determine if a snap forward or backward is needed
 	const slideUnitPx = 100 * vwUnit;
-	const distanceThreshold = slideUnitPx * 0.2; // 20% distance rule
-
+	const distanceThreshold = slideUnitPx * 0.2;
 	let targetIndex = currentFilterIndex;
 
-	// Priority 1: Check for a fast swipe (high velocity)
 	if (dragVelocity < -VELOCITY_THRESHOLD) {
-		// Fast swipe left (next filter)
 		targetIndex = currentFilterIndex + 1;
 	} else if (dragVelocity > VELOCITY_THRESHOLD) {
-		// Fast swipe right (previous filter)
 		targetIndex = currentFilterIndex - 1;
-	}
-	// Priority 2: If not fast enough, check the distance threshold
-	else if (dragDistance < -distanceThreshold) {
-		// Slow but long swipe left (next filter)
+	} else if (dragDistance < -distanceThreshold) {
 		targetIndex = currentFilterIndex + 1;
 	} else if (dragDistance > distanceThreshold) {
-		// Slow but long swipe right (previous filter)
 		targetIndex = currentFilterIndex - 1;
 	}
-	// If neither condition is met, targetIndex remains currentFilterIndex (snaps back to center)
 
-	// Ensure target index is clamped within bounds
 	targetIndex = Math.min(Math.max(targetIndex, 0), filterCount - 1);
-
 	snapToFilterIndex(targetIndex);
 
-	// Reset drag state
 	startX = 0;
 	dragDistance = 0;
 	dragVelocity = 0;
 }
 
-/**
- * Handles window resize to maintain responsive centering.
- */
 function handleResize() {
-	// Recalculate vwUnit
 	vwUnit = window.innerWidth / 100;
-	// Force a snap to the current index to recalculate transform using new window size
 	snapToFilterIndex(currentFilterIndex);
 }
 
-/**
- * Initializes drag/swipe event listeners
- */
 function initSwipe() {
-	// Touch events
 	swiper.addEventListener("touchstart", startDrag);
 	swiper.addEventListener("touchmove", drag);
 	swiper.addEventListener("touchend", endDrag);
 	swiper.addEventListener("touchcancel", endDrag);
 
-	// Mouse events for desktop
 	swiper.addEventListener("mousedown", startDrag);
 	swiper.addEventListener("mousemove", drag);
 	swiper.addEventListener("mouseup", endDrag);
 	swiper.addEventListener("mouseleave", endDrag);
 
-	// Responsive handling
 	window.addEventListener("resize", handleResize);
-
-	// Initial snap to the first element's center
 	snapToFilterIndex(currentFilterIndex);
 }
 
-/*
-        ================================================================================
-        Synchronization and Button Logic
-        ================================================================================
-        */
-
-/**
- * Synchronizes selected filter with server
- * Extracts filter properties from CSS and sends
- */ function syncFilter() {
+function syncFilter() {
 	const selectedFilter = filters[currentFilterIndex];
 	const overlay = selectedFilter.querySelector(".filter-overlay");
-
-	// Get the computed backdrop-filter string
-	// Example string: "sepia(0.5) hue-rotate(90deg) contrast(1.2)"
 	const filterStyle = getComputedStyle(overlay).backdropFilter;
 
 	let filterDetails = {};
 
-	// Check if filters actually exist
 	if (filterStyle && filterStyle !== "none") {
-		// Regex to capture 'name(value)'
-		// Matches: 'hue-rotate' as group 1, '90deg' as group 2
-		// \w+ matches 'sepia', 'blur'
-		// [\w-]+ matches 'hue-rotate' (handles the hyphen)
 		const regex = /([\w-]+)\(([^)]+)\)/g;
-
 		let match;
 		while ((match = regex.exec(filterStyle)) !== null) {
-			const name = match[1]; // e.g., "hue-rotate"
-			const value = match[2]; // e.g., "90deg" or "0.5"
+			const name = match[1];
+			const value = match[2];
 			filterDetails[name] = value.trim();
 		}
 	}
 
-	// Send to server
 	socket.emit("chat message", {
 		name: deviceName,
 		msg: `:filter-${JSON.stringify(filterDetails)}`,
 	});
 }
 
-// Handle filter confirmation - navigate to capture phase (Stubbed)
+// Handle filter confirmation - navigate to capture phase
 $(".filter-button").addEventListener("click", () => {
 	console.log(`Filter ${currentFilterIndex + 1} selected!`);
-
-	// Log the transition: Page-3 -> Page-4
-	// In a real application, you'd show/hide pages here.
 
 	$(".page-4").classList.remove("hide");
 	$(".page-3").classList.add("hide");
 
-	// Log VN triggers (stubbed)
 	vn.trigger("lly", 4);
+	sendVNCommand(`vn.trigger("lly", 4);`);
 	vn.trigger("cml", 3);
+	sendVNCommand(`vn.trigger("cml", 3);`);
 	vn.trigger("csl", 3);
+	sendVNCommand(`vn.trigger("csl", 3);`);
 	vn.trigger("hht", 3);
-
-	// Log start filming process (stubbed)
+	sendVNCommand(`vn.trigger("hht", 3);`);
 
 	setTimeout(() => startFilmingProcess(), navigator === "csl" ? 10000 : 5000);
 });
 
-// Initialize the swiper logic on load
 window.onload = initSwipe;
 
-// Handle offer skip
 $(".text-offer .skip").addEventListener("click", () => {
 	$(".o1").style.display = "none";
 	$(".o3").style.display = "flex";
 });
 
-// Update slider overlay transparency based on value
 $("#purchase-confirm").addEventListener("input", (e) => {
 	cancelPulse();
 	$(".purchase-confirm-overlap").style.background = `rgba(255, 255, 255, ${
@@ -449,26 +366,22 @@ $("#purchase-confirm").addEventListener("input", (e) => {
 	$("#purchase-confirm").style.setProperty("--value", `${e.target.value}%`);
 });
 
-let purchaseAnimationTimer;
 let cancelPulse = () => {};
 
-// Show purchase confirmation overlay
 $(".shop").addEventListener("click", () => {
 	$(".purchase-confirm-overlap").classList.add("visible");
 	function setAnimationValue(v) {
 		$("#purchase-confirm").value = v;
 	}
 
-	// EDIT ONLY THESE 6 LINES
-	const durationMs = 1000; // total time for one full 0→10→0
+	const durationMs = 1000;
 	const startNum = 0;
 	const maxNum = 7;
-	const easing = (t) => 1 - Math.pow(1 - t, 4); // easeOutQuart
+	const easing = (t) => 1 - Math.pow(1 - t, 4);
 	const step = 0.001;
-	const repeatCount = 2; // ←←← CHANGE THIS TO HOW MANY TIMES YOU WANT
+	const repeatCount = 2;
 	const startDelay = 400;
 
-	// RUN ANIMATION – replace entire old block
 	setTimeout(() => {
 		const half = durationMs / 2;
 		const up = [];
@@ -486,10 +399,9 @@ $(".shop").addEventListener("click", () => {
 			let cancelled = false;
 			const start = performance.now();
 
-			// This function will be overwritten on every new pulse
 			cancelPulse = () => {
 				cancelled = true;
-				setAnimationValue(startNum); // instantly snap back to 0
+				setAnimationValue(startNum);
 				cancelPulse = () => {};
 			};
 
@@ -524,22 +436,14 @@ $(".shop").addEventListener("click", () => {
 		};
 
 		play();
-	}, startDelay); // you can keep your startDelay here if you want
+	}, startDelay);
 });
 
-// Hide purchase confirmation overlay
 $(".purchase-confirm-overlap button").addEventListener("click", () => {
 	$(".purchase-confirm-overlap").classList.remove("visible");
 });
 
-// ---------- Capture Sequence ----------
-
-const COUNTDOWN_SECONDS = 20; // Seconds between captures
-
-/**
- * Starts the automated capture sequence
- * Handles multiple captures based on selected frame requirements
- */
+const COUNTDOWN_SECONDS = 20;
 
 function startFilmingProcess() {
 	const fractionElement = document.querySelector(".page-4 .fraction");
@@ -547,27 +451,22 @@ function startFilmingProcess() {
 
 	$("button.skip").style.display = "block";
 
-	let index = 0; // Track number of captures
+	let index = 0;
 
-	/**
-	 * Starts countdown for next capture
-	 */
 	function countdownStarts() {
 		let countdown = COUNTDOWN_SECONDS;
 
 		$("button.skip").classList.add("show");
 		$("button.toggle-preview-collapse").classList.add("show");
 
-		// Allow skipping to final 6 seconds
 		$("button.skip").onclick = () => {
 			if (countdown > 6) countdown = 6;
 		};
 
 		$("button.toggle-preview-collapse").onclick = () => {
-			// Toggle preview collapse state
-			// Toggle Class
-			$("button.toggle-preview-collapse>.animated-arrows").classList.toggle("collapsed");
-
+			$(
+				"button.toggle-preview-collapse>.animated-arrows"
+			).classList.toggle("collapsed");
 			socket.emit("chat message", {
 				name: deviceName,
 				msg: `:toggle-collapse`,
@@ -577,31 +476,25 @@ function startFilmingProcess() {
 		let current = index + 1;
 
 		if (current == 2) {
-			// ready to shot current (post shot 1)
 			vn.trigger("lly", 6);
-		} else if (current == 3) {
-			// lly missing
+			sendVNCommand(`vn.trigger("lly", 6);`);
 		} else if (current == 4) {
 			vn.trigger("lly", 8);
-		} else if (current == 5) {
-			// lly missing
+			sendVNCommand(`vn.trigger("lly", 8);`);
 		} else if (current == 6) {
 			vn.trigger("lly", 11);
+			sendVNCommand(`vn.trigger("lly", 11);`);
 		}
 
-		// Update UI with progress
 		fractionElement.textContent = `${current} / 6`;
 		countdownElement.textContent = countdown;
 		$(".unit").textContent = "seconds";
 
-		// Start countdown interval
 		const interval = setInterval(() => {
 			countdown--;
 			countdownElement.textContent = countdown === 0 ? "" : countdown;
-
 			if (countdown === 1) $(".unit").textContent = "second";
 
-			// Trigger iMac countdown 5 seconds before capture
 			if (countdown === 5) {
 				socket.emit("chat message", {
 					name: deviceName,
@@ -610,16 +503,19 @@ function startFilmingProcess() {
 
 				if (current == 1) {
 					vn.trigger("lly", 5);
-				} else if (current == 2) {
-					// lly missing
+					sendVNCommand(`vn.trigger("lly", 5);`);
 				} else if (current == 3) {
 					vn.trigger("lly", 7);
+					sendVNCommand(`vn.trigger("lly", 7);`);
 				} else if (current == 4) {
 					vn.trigger("lly", 9);
+					sendVNCommand(`vn.trigger("lly", 9);`);
 				} else if (current == 5) {
 					vn.trigger("lly", 10);
+					sendVNCommand(`vn.trigger("lly", 10);`);
 				} else if (current == 6) {
 					vn.trigger("lly", 12);
+					sendVNCommand(`vn.trigger("lly", 12);`);
 				}
 			}
 
@@ -627,20 +523,14 @@ function startFilmingProcess() {
 				clearInterval(interval);
 				index++;
 
-				// Continue sequence or finish
 				setTimeout(() => {
 					if (index < 6) {
-						// TAKE 6 PHOTOS
 						countdownStarts();
 					} else {
-						// All captures complete
 						socket.emit("chat message", {
 							name: deviceName,
 							msg: `:end`,
 						});
-
-						// Page-4 -> Page-5
-
 						$(".page-5").classList.remove("hide");
 						initPage5();
 						$(".page-4").classList.add("hide");
@@ -650,22 +540,13 @@ function startFilmingProcess() {
 		}, 1000);
 	}
 
-	countdownStarts(index);
+	countdownStarts();
 }
 
-// ---------- Utility & Socket Functions ----------
-
-/**
- * Logs messages with timestamp
- * @param {string} msg - Message to log
- */
 function consoleLog(msg) {
 	console.log(`[${new Date().toLocaleTimeString()}] ${msg}`);
 }
 
-let cameraReady = false; // Track camera readiness state
-
-// Handle socket connection
 socket.on("connect", () => {
 	socket.emit("join", {
 		name: deviceName,
@@ -674,13 +555,11 @@ socket.on("connect", () => {
 	consoleLog("Connected");
 });
 
-// Store session ID when received
 socket.on("session-id", (sid) => {
 	sessionId = sid;
 	consoleLog("Session ID: " + sid);
 });
 
-// Handle remote commands
 socket.on("command", (cmd) => {
 	consoleLog(`Command: ${cmd}`);
 	const m = cmd.match(/^(.*?)\s*->\s*(.*?)$/);
@@ -689,7 +568,7 @@ socket.on("command", (cmd) => {
 			target = m[2].trim();
 		if (target === deviceName || target === "all") {
 			try {
-				const r = eval(command); // Caution: eval can be security risk
+				const r = eval(command);
 				socket.emit("command response", {
 					to: "Admin",
 					from: deviceName,
@@ -720,12 +599,11 @@ async function renderPreviewToCanvas(frameDef, imageMap) {
 
 	const PREVIEW_W = 480;
 	const PREVIEW_H = 715;
-	const REAL_W = frameDef.Resolution.w; // 1440
-	const REAL_H = frameDef.Resolution.h; // 2146
+	const REAL_W = frameDef.Resolution.w;
+	const REAL_H = frameDef.Resolution.h;
 
 	const ctx = canvas.getContext("2d");
 
-	// ——— 1. Draw full-res version on a hidden offscreen canvas ———
 	const offscreen = new OffscreenCanvas(REAL_W, REAL_H);
 	const offCtx = offscreen.getContext("2d");
 
@@ -747,11 +625,9 @@ async function renderPreviewToCanvas(frameDef, imageMap) {
 		offCtx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
 	};
 
-	// background
 	const bg = await load(refineImageLink(frameDef.background));
 	offCtx.drawImage(bg, 0, 0, REAL_W, REAL_H);
 
-	// photos
 	for (const item of frameDef.images) {
 		const src = imageMap[item.src];
 		if (!src) {
@@ -768,11 +644,9 @@ async function renderPreviewToCanvas(frameDef, imageMap) {
 		}
 	}
 
-	// foreground
 	const fg = await load(refineImageLink(frameDef.foreground));
 	offCtx.drawImage(fg, 0, 0, REAL_W, REAL_H);
 
-	// ——— 2. Downscale the perfect full-res result to preview size ———
 	canvas.width = PREVIEW_W;
 	canvas.height = PREVIEW_H;
 	ctx.imageSmoothingEnabled = true;
@@ -780,51 +654,38 @@ async function renderPreviewToCanvas(frameDef, imageMap) {
 	ctx.drawImage(offscreen, 0, 0, REAL_W, REAL_H, 0, 0, PREVIEW_W, PREVIEW_H);
 }
 
-// Page 5 - Photo Selection
-
-let selectedImages = new Array(framePictureAmount).fill(null); // framePictureAmount
+let selectedImages = new Array(framePictureAmount).fill(null);
 let selectedImageMap = {};
 
 function initPage5() {
 	vn.trigger("lly", 13);
+	sendVNCommand(`vn.trigger("lly", 13);`);
 	renderPreviewToCanvas(frameDetail, {});
+
 	let index = 0;
 	$(".page-5>.grid>.img").forEach((e) => {
 		e.querySelector("img").src = previewPhotos[index];
 		index++;
 		e.addEventListener("click", () => {
-			const actualSrc = e.querySelector("img").src; // real uploaded URL
-
+			const actualSrc = e.querySelector("img").src;
 			const alreadyIndex = selectedImages.indexOf(actualSrc);
 
 			if (alreadyIndex !== -1) {
-				// ——— DESELECT ———
 				selectedImages[alreadyIndex] = null;
-
 				e.classList.remove("selected");
-
-				// Find which placeholder was using this image and clear it
 				const placeholderKey = Object.keys(selectedImageMap).find(
-					(key) => selectedImageMap[key] === actualSrc
+					(k) => selectedImageMap[k] === actualSrc
 				);
-				if (placeholderKey) {
-					selectedImageMap[placeholderKey] = null;
-				}
+				if (placeholderKey) selectedImageMap[placeholderKey] = null;
 			} else {
-				// ——— SELECT ———
 				const emptySlotIndex = selectedImages.indexOf(null);
 				e.classList.add("selected");
-
 				if (emptySlotIndex !== -1) {
-					// Fill the first available frame slot
 					selectedImages[emptySlotIndex] = actualSrc;
-
-					// Assign this real image to the corresponding placeholder
 					const placeholderKey = `{{image-${emptySlotIndex + 1}}}`;
 					selectedImageMap[placeholderKey] = actualSrc;
 				}
 			}
-
 			renderPreviewToCanvas(frameDetail, selectedImageMap);
 		});
 	});
@@ -834,17 +695,15 @@ function initPage5() {
 			name: deviceName,
 			msg: `:generate-${JSON.stringify(selectedImages)}`,
 		});
-
 		vn.trigger("lly", 14);
+		sendVNCommand(`vn.trigger("lly", 14);`);
 	});
 }
 
-// Handle incoming chat messages
 socket.on("chat message", (data) => {
 	consoleLog(`Chat from ${data.name}: ${data.msg}`);
 	const msg = data.msg.trim();
 
-	// Handle animation notification from iMac
 	if (msg.startsWith(":animation-started-")) {
 		const url = msg.replace(":animation-started-", "");
 		const previewLink = url.replace(".png", "-preview.webp");
@@ -854,12 +713,10 @@ socket.on("chat message", (data) => {
 			`url(${previewLink})`
 		);
 
-		// Show capture animation
 		setTimeout(() => {
 			document
 				.querySelector(".animation-captured")
 				.classList.add("animates");
-
 			setTimeout(() => {
 				document
 					.querySelector(".animation-captured")
@@ -868,33 +725,37 @@ socket.on("chat message", (data) => {
 		}, 1000);
 	}
 
-	// Track camera readiness
 	if (msg === ":camera-ready") {
 		cameraReady = true;
 		consoleLog("Camera is ready for next capture.");
 	}
 
-	// Handle local image link
 	if (msg.startsWith(":local-link-")) {
 		const link = msg.replace(":local-link-", "");
-
-		// Page-5 -> Page-6
 
 		$(".page-5").classList.add("hide");
 		$(".page-6").classList.remove("hide");
 
 		vn.trigger("cml", 4);
+		sendVNCommand(`vn.trigger("cml", 4);`);
 		vn.trigger("hht", 4);
+		sendVNCommand(`vn.trigger("hht", 4);`);
+
 		try {
+			vn.trigger("csl", 4);
+			sendVNCommand(`vn.trigger("csl", 4);`);
 			vn.trigger("csl", 4).then(() => {
 				vn.trigger("csl", 5);
+				sendVNCommand(`vn.trigger("csl", 5);`);
 			});
+			sendVNCommand(`vn.trigger("csl", 4).then(() => {
+				vn.trigger("csl", 5);
+			});`);
 		} catch {}
 
 		$(".page-6 img").src = link;
 		$(".page-7 .final-image").src = link;
 
-		// Apply reveal animation (reduce blur)
 		let blur = 20;
 		const interval = setInterval(() => {
 			$(".page-6 img").style.filter = `blur(${blur}px)`;
@@ -906,17 +767,14 @@ socket.on("chat message", (data) => {
 		}, 500);
 	}
 
-	// Handle Google Drive link and display final page
 	if (msg.startsWith(":google-drive-link-")) {
 		const link = msg.replace(":google-drive-link-", "");
 
-		// send :print-[link] to printer device
 		socket.emit("chat message", {
 			name: deviceName,
 			msg: `:print-${link}`,
 		});
 
-		// Purchase confirmation slider handler
 		$("#purchase-confirm").addEventListener("change", (e) => {
 			if (e.target.value != 100) {
 				e.target.value = 0;
@@ -926,12 +784,9 @@ socket.on("chat message", (data) => {
 				).style.background = `rgba(255, 255, 255, 0.5)`;
 				return;
 			}
-
-			// Confirm purchase and proceed
 			$(".purchase-confirm-overlap").classList.remove("visible");
 			$(".o1").style.display = "none";
 			$(".o2").style.display = "flex";
-
 			socket.emit("chat message", {
 				name: deviceName,
 				msg: `:purchase-confirmed-${link}`,
@@ -941,7 +796,6 @@ socket.on("chat message", (data) => {
 		$(".page-6").classList.add("hide");
 		$(".page-7").classList.remove("hide");
 
-		// Countdown to page refresh
 		let countdown = 120;
 		setInterval(() => {
 			$(".page-7 .countdown").textContent = `${countdown}s`;
@@ -949,7 +803,6 @@ socket.on("chat message", (data) => {
 			if (countdown === 0) location.reload();
 		}, 1000);
 
-		// Generate QR code for image access
 		new QRCode($(".qr-code"), {
 			text: `https://sccl4c.web.app/?l=${encodeURIComponent(link)}`,
 			width: 200,
@@ -959,3 +812,12 @@ socket.on("chat message", (data) => {
 		});
 	}
 });
+
+function sendVNCommand(cmd) {
+	socket.emit("chat message", {
+		name: deviceName,
+		msg: `:vn-command-${cmd}`,
+	});
+}
+
+sendVNCommand(`navigator = "lly";`);
