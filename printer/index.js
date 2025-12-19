@@ -71,33 +71,85 @@ async function downloadAndPrint(imageID, printMode) {
 
 		let fileToPrint = filepath;
 
-		// --- IMAGE PROCESSING FOR 4R (4x6) ---
-		if (printMode !== "RECEIPT") {
-			console.log(`🎨 Resizing for 4R (4x6) with white borders...`);
+		// --- IMAGE PROCESSING ---
+		const DPI = 300;
+		const mmToPixel = (mm) => Math.round((mm / 25.4) * DPI);
 
-			// 4x6 inches at 300 DPI = 1200x1800 pixels
+		const canvasWidth = 1200; // 4 inches
+		const canvasHeight = 1800; // 6 inches
+
+		if (printMode === "RECEIPT") {
+			console.log(`🧾 Processing LEFT HALF and FILLING rectangle...`);
+
+			const receiptWidth = mmToPixel(22);
+			const receiptHeight = mmToPixel(53);
+			const borderWidth = 1;
+
+			// 1. Get metadata to calculate the half-cut
+			const pipeline = sharp(filepath);
+			const metadata = await pipeline.metadata();
+
+			// 2. Crop the left half, then RESIZE to FILL (cover)
+			const receiptBuffer = await pipeline
+				.extract({
+					left: 0,
+					top: 0,
+					width: Math.floor(metadata.width / 2),
+					height: metadata.height - 75,
+				})
+				.resize(receiptWidth, receiptHeight, {
+					fit: "cover", // This fills the dimensions completely
+					position: "center",
+				})
+				.flatten({ background: { r: 255, g: 255, b: 255 } })
+				.extend({
+					top: borderWidth,
+					bottom: borderWidth,
+					left: borderWidth,
+					right: borderWidth,
+					background: { r: 255, g: 255, b: 255 },
+				})
+				.extend({
+					top: borderWidth * 2,
+					bottom: borderWidth * 2,
+					left: borderWidth * 2,
+					right: borderWidth * 2,
+					background: { r: 0, g: 0, b: 0 },
+				})
+				.toBuffer();
+
+			// 3. Composite onto white 4x6 canvas
+			await sharp({
+				create: {
+					width: canvasWidth,
+					height: canvasHeight,
+					channels: 3,
+					background: { r: 255, g: 255, b: 255 },
+				},
+			})
+				.composite([{ input: receiptBuffer, gravity: "center" }])
+				.jpeg()
+				.toFile(processedPath);
+
+			fileToPrint = processedPath;
+		} else {
+			console.log(`🎨 Resizing for 4R (4x6) Full Page...`);
+
 			await sharp(filepath)
 				.resize({
-					width: 1200,
-					height: 1800,
+					width: canvasWidth,
+					height: canvasHeight,
 					fit: "contain",
 					background: { r: 255, g: 255, b: 255, alpha: 1 },
 				})
 				.toFile(processedPath);
 
 			fileToPrint = processedPath;
-			console.log(`✅ Processed file: ${processedPath}`);
 		}
 
 		getL4260PrinterName((printerName) => {
-			let options = "";
-			if (printMode === "RECEIPT") {
-				options = `-o media=a4 -o landscape=no -o scaling=35`;
-			} else {
-				// Changed media to 4x6 or photo-4x6 depending on driver
-				// Adding -o PageSize=4x6 as a fallback for some CUPS drivers
-				options = `-o media=4x6 -o PageSize=4x6.Borderless-o fit-to-page -o image-position=center`;
-			}
+			// Both modes now use 4x6 paper settings
+			const options = `-o media=4x6 -o PageSize=4x6.Borderless -o fit-to-page -o image-position=center`;
 
 			const cmd = `lp -d "${printerName}" ${options} "${fileToPrint}"`;
 
