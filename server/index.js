@@ -12,6 +12,8 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 7721;
 
+let frameDefinition = {};
+
 const localIP =
 	Object.values(require("os").networkInterfaces())
 		.flat()
@@ -348,7 +350,7 @@ function generateUUID() {
 	);
 }
 
-let frameID = "default";
+let frameID = "frame1";
 
 function addToRecord(item, data) {
 	const tableID = id;
@@ -410,7 +412,23 @@ io.on("connection", (socket) => {
 		io.emit("chat message", { name: data.name, msg: data.msg });
 
 		if (data.msg.startsWith(":frame-")) {
-			frameID = data.msg.match(/^:frame-(.+)-[^-]+$/ )?.[1] ?? null;
+			frameID = data.msg.match(/^:frame-(.+)-[^-]+$/)?.[1] ?? null;
+
+			const frameDefPath = path.join(
+				__dirname,
+				"public",
+				"frames",
+				"jsons",
+				`${frameID}.json`
+			);
+
+			// REMOVE 'let' FROM THE LINE BELOW
+			if (fs.existsSync(frameDefPath)) {
+				frameDefinition = JSON.parse(
+					fs.readFileSync(frameDefPath, "utf8")
+				);
+				console.log(frameDefinition);
+			}
 
 			addToRecord("frame", frameID);
 		} else if (data.msg.startsWith(":filter-")) {
@@ -438,97 +456,52 @@ io.on("connection", (socket) => {
 		} else if (data.msg.startsWith(":navigator")) {
 			addToRecord("navigator", data.msg.split(":navigator-")[1]);
 		} else if (data.msg.startsWith(":generate-")) {
-			// Extract the JSON array part after ":generate-"
-			const jsonPart = data.msg.slice(10); // ":generate-".length === 10
-
+			const jsonPart = data.msg.slice(10);
 			let imagePaths = [];
 			try {
 				imagePaths = JSON.parse(jsonPart);
-				if (!Array.isArray(imagePaths)) throw new Error("Not an array");
 			} catch (err) {
-				console.error(
-					"Invalid :generate- command - JSON array expected",
-					err
-				);
+				console.error("Invalid JSON", err);
 				return;
 			}
 
-			// Optional: basic validation (e.g. max 10 images, only strings, etc.)
-			if (imagePaths.length === 0 || imagePaths.length > 20) {
-				console.error("Invalid number of images:", imagePaths.length);
-				return;
-			}
-
-			// --- 1. Clean up old preview files ---
-			const uploadDir = path.join(
-				__dirname,
-				"public",
-				"uploads",
-				String(id)
-			);
-			if (fs.existsSync(uploadDir)) {
-				const files = fs.readdirSync(uploadDir);
-				for (const file of files) {
-					if (file.endsWith("-preview.webp")) {
-						fs.unlinkSync(path.join(uploadDir, file));
-					}
-				}
-			}
-
-			// --- 2. Load frame definition ---
-			const frameDefinitionPath = path.join(
-				__dirname,
-				"public",
-				"frames",
-				"jsons",
-				`${frameID}.json`
-			);
-
-			if (!fs.existsSync(frameDefinitionPath)) {
-				console.error(
-					`Frame definition not found for frameID: ${frameID}`
-				);
-				return;
-			}
-
-			const frameDefinition = JSON.parse(
-				fs.readFileSync(frameDefinitionPath, "utf8")
-			);
-
-			// --- 3. Build imageMap from the received array ---
 			const imageMap = {};
 			imagePaths.forEach((imgPath, index) => {
-				// Sanitize / normalize the path to prevent directory traversal
-				const safePath = imgPath.split("/uploads/")[1];
+				// 1. Extract the part after /uploads/
+				// This handles "http://.../uploads/SESSION_ID/FILENAME.png"
+				const parts = imgPath.split("/uploads/");
+				if (parts.length < 2) return;
+
+				const relativePath = parts[1]; // "SESSION_ID/FILENAME.png"
+
+				// 2. Build the absolute path on your Mac
 				const fullPath = path.join(
 					__dirname,
 					"public",
 					"uploads",
-					safePath
+					relativePath
 				);
 
-				// Optional: extra security - ensure it really exists and is inside the session folder
-				if (
-					!fs.existsSync(fullPath) ||
-					!fullPath.startsWith(uploadDir + path.sep)
-				) {
-					console.warn(
-						`Image not found or access denied: ${fullPath}`
-					);
-					return;
+				// 3. Verify existence
+				if (fs.existsSync(fullPath)) {
+					imageMap[`{{image-${index + 1}}}`] = fullPath;
+				} else {
+					console.warn(`File missing at: ${fullPath}`);
 				}
-
-				imageMap[`{{image-${index + 1}}}`] = fullPath; // use absolute path for generateCompositeImage
 			});
 
-			// If no valid images were mapped, abort
 			if (Object.keys(imageMap).length === 0) {
-				console.error("No valid images provided for generation");
+				console.error("No valid images found on disk.");
 				return;
 			}
 
-			// --- 4. Generate the composite ---
-			const outputFilename = `output_${id}.jpg`;
+			// Ensure we use the ID from the folder name of the first image
+			// so the output filename matches the session being processed
+			const sessionIDFromPath = imagePaths[0]
+				.split("/uploads/")[1]
+				.split("/")[0];
+
+			const outputFilename = `output_${sessionIDFromPath}.jpg`;
 			const outputDir = path.join(__dirname, "public", "outputs");
 
 			generateCompositeImage(

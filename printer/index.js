@@ -79,60 +79,53 @@ async function downloadAndPrint(imageID, printMode) {
 		const canvasHeight = 1800; // 6 inches
 
 		if (printMode === "RECEIPT") {
-			console.log(`🧾 Processing LEFT HALF and FILLING rectangle...`);
+            console.log(`🧾 Processing LEFT HALF for RECEIPT mode...`);
 
-			const receiptWidth = mmToPixel(22);
-			const receiptHeight = mmToPixel(53);
-			const borderWidth = 1;
+            const receiptWidth = mmToPixel(29);
+            const receiptHeight = mmToPixel(60);
+            const borderWidth = 4; 
 
-			// 1. Get metadata to calculate the half-cut
-			const pipeline = sharp(filepath);
-			const metadata = await pipeline.metadata();
+            // 1. Get metadata to calculate the center-cut/half-cut
+            const pipeline = sharp(filepath);
+            const metadata = await pipeline.metadata();
 
-			// 2. Crop the left half, then RESIZE to FILL (cover)
-			const receiptBuffer = await pipeline
-				.extract({
-					left: 0,
-					top: 0,
-					width: Math.floor(metadata.width / 2),
-					height: metadata.height - 75,
-				})
-				.resize(receiptWidth, receiptHeight, {
-					fit: "cover", // This fills the dimensions completely
-					position: "center",
-				})
-				.flatten({ background: { r: 255, g: 255, b: 255 } })
-				.extend({
-					top: borderWidth,
-					bottom: borderWidth,
-					left: borderWidth,
-					right: borderWidth,
-					background: { r: 255, g: 255, b: 255 },
-				})
-				.extend({
-					top: borderWidth * 2,
-					bottom: borderWidth * 2,
-					left: borderWidth * 2,
-					right: borderWidth * 2,
-					background: { r: 0, g: 0, b: 0 },
-				})
-				.toBuffer();
+            // 2. Crop, Resize, Flatten, and Border
+            const receiptBuffer = await pipeline
+                .extract({ 
+                    left: 0, 
+                    top: 0, 
+                    width: Math.floor(metadata.width / 2), 
+                    height: metadata.height 
+                })
+                .resize(receiptWidth, receiptHeight, { 
+                    fit: "contain",
+                    background: { r: 255, g: 255, b: 255 } 
+                })
+                .flatten({ background: { r: 255, g: 255, b: 255 } })
+                .extend({
+                    top: borderWidth,
+                    bottom: borderWidth,
+                    left: borderWidth,
+                    right: borderWidth,
+                    background: { r: 255, g: 255, b: 255 }
+                })
+                .toBuffer();
 
-			// 3. Composite onto white 4x6 canvas
-			await sharp({
-				create: {
-					width: canvasWidth,
-					height: canvasHeight,
-					channels: 3,
-					background: { r: 255, g: 255, b: 255 },
-				},
-			})
-				.composite([{ input: receiptBuffer, gravity: "center" }])
-				.jpeg()
-				.toFile(processedPath);
+            // 3. Composite onto white 4x6 canvas
+            await sharp({
+                create: {
+                    width: canvasWidth,
+                    height: canvasHeight,
+                    channels: 3,
+                    background: { r: 255, g: 255, b: 255 },
+                },
+            })
+                .composite([{ input: receiptBuffer, gravity: "center" }])
+                .jpeg()
+                .toFile(processedPath);
 
-			fileToPrint = processedPath;
-		} else {
+            fileToPrint = processedPath;
+        } else {
 			console.log(`🎨 Resizing for 4R (4x6) Full Page...`);
 
 			await sharp(filepath)
@@ -149,7 +142,7 @@ async function downloadAndPrint(imageID, printMode) {
 
 		getL4260PrinterName((printerName) => {
 			// Both modes now use 4x6 paper settings
-			const options = `-o media=4x6 -o PageSize=4x6.Borderless -o fit-to-page -o image-position=center`;
+			const options = `-o media=4x6 -o PageSize=4x6 -o fit-to-page -o image-position=center`;
 
 			const cmd = `lp -d "${printerName}" ${options} "${fileToPrint}"`;
 
