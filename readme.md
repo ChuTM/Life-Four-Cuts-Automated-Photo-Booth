@@ -1,3 +1,8 @@
+
+> [!WARNING]
+> Notice: This project is complete and no longer maintained.
+> The codebase is free to use, but the assets and designs remain private property and are not included in the open-source grant.
+
 # 2025-Econ-Life-Four-Cut
 
 A comprehensive project for creating interactive "Life Four-Cut" photo strips by Economics students. This application integrates a backend server, printer communication, and a responsive frontend to deliver a seamless user experience from photo capture to physical print output.
@@ -173,7 +178,7 @@ Create a `.env` file in the server directory with the following variables:
 - **Printer Client Node.js Version**: `>=4.0`
 - Modern web browser for frontend interfaces
 
-## Demo Report
+## Project
 
 **Author:** Ming Chu  
 **Project Objective:** To develop a fully automated, interactive photo booth service for visitors at the Economics Booth during the 2025 SCC Open Day.  
@@ -204,19 +209,14 @@ Visitors can now complete the entire experience independently:
 
 The demo is fully functional from start to finish without dedicated styling.
 
-### Next Steps & Action Plan
-
-| Priority | Task                              | Details                                      | Status     |
-|----------|-----------------------------------|----------------------------------------------|------------|
-| 1        | Redesign `/iPad.html`             | Modern, booth-themed UI/UX with large touch targets | Not started |
-| 2        | Redesign Frames & Overlays        | Create Economics/SCC 2025 themed frames       | Not started |
-| 3        | Re-configure Filters              | Add fun, event-relevant filters (e.g., money rain, charts) | Not started |
-| DONE        | Printer Integration & Testing     | Test with actual thermal/photo printer, handle errors | In progress (code only) |
-| 5        | Full-System Stress Test           | Simulate 50–100 consecutive users, check stability | Pending    |
-| 7        | Final Polish & On-site Deployment | Styling, error handling, offline fallback    | Pending    |
-
 ## Remarks
 The core technical backbone (camera → processing → upload → QR display) is complete and stable. The remaining work is primarily aesthetic enhancement and robust hardware integration to ensure smooth operation during the actual Open Day event.
 
 **Target Completion:** Before SCC Open Day 2025  
 We are on track for a polished, reliable, and engaging photo booth experience.
+
+
+> Project Status: Archived
+> This project has now completed its mission and has been officially archived. While the source code is available for free public use, please note that all visual assets and designs are proprietary and not open-source. You are welcome to use and modify the code, but the original design assets must not be redistributed or reused.
+
+Copyright Ming Chu 2025-2026
