@@ -2,10 +2,14 @@
 > [!WARNING]
 > Notice: This project is complete and no longer maintained.
 > The codebase is free to use, but the assets and designs remain private property and are not included in the open-source grant.
+>
+> Refer to any existing README.md files for further reference.
 
-# 2025-Econ-Life-Four-Cut
+# Life Four Cuts Automated Photo Booth
 
 A comprehensive project for creating interactive "Life Four-Cut" photo strips by Economics students. This application integrates a backend server, printer communication, and a responsive frontend to deliver a seamless user experience from photo capture to physical print output.
+
+> Interactive UI x Reliable Backend x Printer Linking x Online Copy
 
 ## Overview
 
